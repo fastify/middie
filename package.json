@@ -21,6 +21,14 @@
     }
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fastify/middleman.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fastify/middleman/issues"
+  },
+  "homepage": "https://github.com/fastify/middleman#readme",
   "devDependencies": {
     "cors": "^2.8.1",
     "dns-prefetch-control": "^0.1.0",
