@@ -1,0 +1,39 @@
+{
+  "name": "fastify-middleman",
+  "version": "0.1.0",
+  "description": "",
+  "main": "middleman.js",
+  "scripts": {
+    "test": "standard && tap test.js",
+    "coverage": "tap --cov --coverage-report=html test.js"
+  },
+  "keywords": [
+    "fastify",
+    "middleware",
+    "webframework",
+    "performances"
+  ],
+  "author": "Matteo Collina <hello@matteocollina.com>",
+  "contributors": [
+    {
+      "name": "Tomas Della Vedova",
+      "url": "http://delved.org"
+    }
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "cors": "^2.8.1",
+    "dns-prefetch-control": "^0.1.0",
+    "frameguard": "^3.0.0",
+    "hide-powered-by": "^1.0.0",
+    "hsts": "^2.0.0",
+    "ienoopen": "^1.0.0",
+    "pre-commit": "^1.2.2",
+    "standard": "^8.6.0",
+    "tap": "^10.1.0",
+    "x-xss-protection": "^1.0.0"
+  },
+  "dependencies": {
+    "reusify": "^1.0.1"
+  }
+}
