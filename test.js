@@ -1,13 +1,13 @@
 'use strict'
 
-const middleman = require('./middleman')
+const middie = require('./middie')
 const t = require('tap')
 const test = t.test
 
 test('use no function', t => {
   t.plan(3)
 
-  const instance = middleman(function (err, a, b) {
+  const instance = middie(function (err, a, b) {
     t.error(err)
     t.equal(a, req)
     t.equal(b, res)
@@ -22,7 +22,7 @@ test('use no function', t => {
 test('use a function', t => {
   t.plan(5)
 
-  const instance = middleman(function (err, a, b) {
+  const instance = middie(function (err, a, b) {
     t.error(err)
     t.equal(a, req)
     t.equal(b, res)
@@ -41,7 +41,7 @@ test('use a function', t => {
 test('use two functions', t => {
   t.plan(5)
 
-  const instance = middleman(function (err, a, b) {
+  const instance = middie(function (err, a, b) {
     t.error(err)
     t.equal(a, req)
     t.equal(b, res)
@@ -64,7 +64,7 @@ test('use two functions', t => {
 test('stop the middleware chain if one errors', t => {
   t.plan(1)
 
-  const instance = middleman(function (err, a, b) {
+  const instance = middie(function (err, a, b) {
     t.ok(err, 'error is forwarded')
   })
   const req = {}
