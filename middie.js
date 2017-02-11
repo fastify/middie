@@ -2,7 +2,7 @@
 
 const reusify = require('reusify')
 
-function middleman (complete) {
+function middie (complete) {
   var functions = []
   var hasMiddlewares = false
   var pool = reusify(Holder)
@@ -55,4 +55,4 @@ function middleman (complete) {
   }
 }
 
-module.exports = middleman
+module.exports = middie

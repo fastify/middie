@@ -1,7 +1,7 @@
-# fastify-middleman
-[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/) [![Build Status](https://travis-ci.org/fastify/middleman.svg?branch=master)](https://travis-ci.org/fastify/middleman)
+# middie
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/) [![Build Status](https://travis-ci.org/fastify/middie.svg?branch=master)](https://travis-ci.org/fastify/middie)
 
-*fastify-middleman* is the module that add middlewares support on steroids to [Fastify](https://www.npmjs.com/package/fastify).
+*middie* is the module that add middlewares support on steroids to [Fastify](https://www.npmjs.com/package/fastify).
 
 The syntax style is the same as [express](http://npm.im/express)/[connect](https://www.npmjs.com/package/connect).  
 Does not support the full syntax `middleware(err, req, res, next)`, because error handling is done inside Fastify.
@@ -11,23 +11,23 @@ If you want to see how use this module with Fastify, check [here](https://github
 ## Install
 
 ```
-npm install fastify-middleman --save
+npm install middie --save
 ```
 
 ## Usage
 ```js
-const Middleman = require('fastify-middleman')
+const Middie = require('middie')
 const http = require('http')
 const helmet = require('helmet')
 const cors = require('cors')
 
-const middleman = Middleman(_runMiddlewares)
-middleman.use(helmet())
-middleman.use(cors())
+const middie = Middie(_runMiddlewares)
+middie.use(helmet())
+middie.use(cors())
 
 http
   .createServer(function handler (req, res) {
-    middleman.run(req, res)
+    middie.run(req, res)
   })
   .listen(3000)
 
