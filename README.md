@@ -13,7 +13,7 @@ If you want to see how use this module with Fastify, check [here](https://github
 ```
 npm install middie --save
 ```
-
+<a name="usage"></a>
 ## Usage
 ```js
 const Middie = require('middie')
@@ -42,9 +42,25 @@ function _runMiddlewares (err, req, res) {
 }
 ```
 
+<a name="restrict-usage"></a>
+#### Restrict middleware execution to a certain path(s)
+If you need to run a middleware only under certains path(s), just pass the path as first parameter to `use` and you are done!  
+*Note that this does not support routes with parameters, (eg: `/user/:id/comments`)*
+```js
+// Single path
+middie.use('/public', staticFiles('/assets'))
+
+// Multiple paths
+middie.use(['/public', '/dist'], staticFiles('/assets'))
+
+```
+
 ## Acknowledgements
 
-This project was kindly sponsored by [nearForm](http://nearform.com).
+This project is kindly sponsored by:
+- [nearForm](http://nearform.com)
+- [LetzDoIt](http://www.letzdoitapp.com/)
+
 
 ## License
 

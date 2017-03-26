@@ -1,9 +1,11 @@
 'use strict'
 
 const reusify = require('reusify')
+const pathMatch = require('pathname-match')
 
 function middie (complete) {
   var functions = []
+  var urls = []
   var hasMiddlewares = false
   var pool = reusify(Holder)
 
@@ -12,9 +14,14 @@ function middie (complete) {
     run
   }
 
-  function use (f) {
+  function use (url, f) {
+    if (typeof url === 'function') {
+      f = url
+      url = null
+    }
     hasMiddlewares = true
     functions.push(f)
+    urls.push(url)
     return this
   }
 
@@ -27,6 +34,7 @@ function middie (complete) {
     const holder = pool.get()
     holder.req = req
     holder.res = res
+    holder.url = pathMatch(req.url)
     holder.done()
   }
 
@@ -34,12 +42,14 @@ function middie (complete) {
     this.next = null
     this.req = null
     this.res = null
+    this.url = null
     this.i = 0
 
     var that = this
     this.done = function (err) {
       const req = that.req
       const res = that.res
+      const url = that.url
       const i = that.i++
 
       if (err || functions.length === i) {
@@ -49,7 +59,13 @@ function middie (complete) {
         that.i = 0
         pool.release(that)
       } else {
-        functions[i](req, res, that.done)
+        if (!urls[i]) {
+          functions[i](req, res, that.done)
+        } else if (urls[i] && (urls[i] === url || urls[i].indexOf(url) > -1)) {
+          functions[i](req, res, that.done)
+        } else {
+          that.done()
+        }
       }
     }
   }
