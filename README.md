@@ -1,4 +1,6 @@
 # middie
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/fastify/middie.svg)](https://greenkeeper.io/)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/) [![Build Status](https://travis-ci.org/fastify/middie.svg?branch=master)](https://travis-ci.org/fastify/middie)
 
 *middie* is the module that add middlewares support on steroids to [Fastify](https://www.npmjs.com/package/fastify).
