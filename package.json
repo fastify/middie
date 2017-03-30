@@ -37,7 +37,7 @@
     "hsts": "^2.0.0",
     "ienoopen": "^1.0.0",
     "pre-commit": "^1.2.2",
-    "standard": "^8.6.0",
+    "standard": "^9.0.2",
     "tap": "^10.1.0",
     "x-xss-protection": "^1.0.0"
   },
