@@ -2,6 +2,7 @@
 
 const reusify = require('reusify')
 const pathMatch = require('pathname-match')
+const endOfPathAsterixRegex = /\/\*$/
 
 function middie (complete) {
   var functions = []
@@ -61,10 +62,16 @@ function middie (complete) {
       } else {
         if (!urls[i]) {
           functions[i](req, res, that.done)
-        } else if (urls[i] && (urls[i] === url || urls[i].indexOf(url) > -1)) {
-          functions[i](req, res, that.done)
         } else {
-          that.done()
+          if (urls[i] === url) {
+            functions[i](req, res, that.done)
+          } else if (typeof urls[i] !== 'string' && urls[i].indexOf(url) > -1) {
+            functions[i](req, res, that.done)
+          } else if (endOfPathAsterixRegex.test(urls[i]) && url.indexOf(urls[i].slice(0, -1)) > -1) {
+            functions[i](req, res, that.done)
+          } else {
+            that.done()
+          }
         }
       }
     }
