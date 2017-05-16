@@ -2,10 +2,8 @@
 
 const reusify = require('reusify')
 const pathMatch = require('pathname-match')
-const endOfPathAsterixRegex = /\/\*$/
 
 function middie (complete) {
-  var functions = []
   var urls = []
   var hasMiddlewares = false
   var pool = reusify(Holder)
@@ -21,8 +19,11 @@ function middie (complete) {
       url = null
     }
     hasMiddlewares = true
-    functions.push(f)
-    urls.push(url)
+    urls.push({
+      path: url,
+      fn: f,
+      wildcard: hasWildcard(url)
+    })
     return this
   }
 
@@ -53,29 +54,43 @@ function middie (complete) {
       const url = that.url
       const i = that.i++
 
-      if (err || functions.length === i) {
+      if (err || urls.length === i) {
         complete(err, req, res)
         that.req = null
         that.res = null
         that.i = 0
         pool.release(that)
       } else {
-        if (!urls[i]) {
-          functions[i](req, res, that.done)
+        if (!urls[i].path) {
+          urls[i].fn(req, res, that.done)
+        } else if (urls[i].wildcard && pathMatchWildcard(url, urls[i].path)) {
+          urls[i].fn(req, res, that.done)
+        } else if (urls[i].path === url || (typeof urls[i].path !== 'string' && urls[i].path.indexOf(url) > -1)) {
+          urls[i].fn(req, res, that.done)
         } else {
-          if (urls[i] === url) {
-            functions[i](req, res, that.done)
-          } else if (typeof urls[i] !== 'string' && urls[i].indexOf(url) > -1) {
-            functions[i](req, res, that.done)
-          } else if (endOfPathAsterixRegex.test(urls[i]) && url.indexOf(urls[i].slice(0, -1)) > -1) {
-            functions[i](req, res, that.done)
-          } else {
-            that.done()
-          }
+          that.done()
         }
       }
     }
   }
+}
+
+function hasWildcard (url) {
+  return typeof url === 'string' && url.length > 2 && url.charCodeAt(url.length - 1) === 42 /* * */ && url.charCodeAt(url.length - 2) === 47 /* / */
+}
+
+function pathMatchWildcard (url, wildcardUrl) {
+  if (url.length < wildcardUrl.length) {
+    return false
+  }
+
+  for (var i = 0; i < wildcardUrl.length - 2; i++) {
+    if (url.charCodeAt(i) !== wildcardUrl.charCodeAt(i)) {
+      return false
+    }
+  }
+
+  return true
 }
 
 module.exports = middie
