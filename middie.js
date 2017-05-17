@@ -4,8 +4,7 @@ const reusify = require('reusify')
 const pathMatch = require('pathname-match')
 
 function middie (complete) {
-  var urls = []
-  var hasMiddlewares = false
+  var middlewares = []
   var pool = reusify(Holder)
 
   return {
@@ -18,8 +17,7 @@ function middie (complete) {
       f = url
       url = null
     }
-    hasMiddlewares = true
-    urls.push({
+    middlewares.push({
       path: url,
       fn: f,
       wildcard: hasWildcard(url)
@@ -28,7 +26,7 @@ function middie (complete) {
   }
 
   function run (req, res) {
-    if (!hasMiddlewares) {
+    if (!middlewares.length) {
       complete(null, req, res)
       return
     }
@@ -54,19 +52,20 @@ function middie (complete) {
       const url = that.url
       const i = that.i++
 
-      if (err || urls.length === i) {
+      if (err || middlewares.length === i) {
         complete(err, req, res)
         that.req = null
         that.res = null
         that.i = 0
         pool.release(that)
       } else {
-        const fn = urls[i].fn
-        if (!urls[i].path) {
+        const middleware = middlewares[i]
+        const fn = middleware.fn
+        if (!middleware.path) {
           fn(req, res, that.done)
-        } else if (urls[i].wildcard && pathMatchWildcard(url, urls[i].path)) {
+        } else if (middleware.wildcard && pathMatchWildcard(url, middleware.path)) {
           fn(req, res, that.done)
-        } else if (urls[i].path === url || (typeof urls[i].path !== 'string' && urls[i].path.indexOf(url) > -1)) {
+        } else if (middleware.path === url || (typeof middleware.path !== 'string' && middleware.path.indexOf(url) > -1)) {
           fn(req, res, that.done)
         } else {
           that.done()
