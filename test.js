@@ -120,6 +120,38 @@ test('run restricted by path', t => {
   instance.run(req, res)
 })
 
+test('run restricted by path with * at the end', t => {
+  t.plan(8)
+
+  const instance = middie(function (err, a, b) {
+    t.error(err)
+    t.equal(a, req)
+    t.equal('/test/aaa/bbb', req.url)
+    t.equal(b, res)
+  })
+  const req = {
+    url: '/test/aaa/bbb'
+  }
+  const res = {}
+
+  t.equal(instance.use('/test/*', function (req, res, next) {
+    t.ok('function called')
+    next()
+  }), instance)
+
+  t.equal(instance.use('/test/aaa/bbb/*', function (req, res, next) {
+    t.fail('should not call this function')
+    next()
+  }), instance)
+
+  t.equal(instance.use('/test/aaa*', function (req, res, next) {
+    t.fail('should not call this function')
+    next()
+  }), instance)
+
+  instance.run(req, res)
+})
+
 test('run restricted by array path', t => {
   t.plan(9)
 

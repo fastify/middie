@@ -4,9 +4,7 @@ const reusify = require('reusify')
 const pathMatch = require('pathname-match')
 
 function middie (complete) {
-  var functions = []
-  var urls = []
-  var hasMiddlewares = false
+  var middlewares = []
   var pool = reusify(Holder)
 
   return {
@@ -19,14 +17,16 @@ function middie (complete) {
       f = url
       url = null
     }
-    hasMiddlewares = true
-    functions.push(f)
-    urls.push(url)
+    middlewares.push({
+      path: url,
+      fn: f,
+      wildcard: hasWildcard(url)
+    })
     return this
   }
 
   function run (req, res) {
-    if (!hasMiddlewares) {
+    if (!middlewares.length) {
       complete(null, req, res)
       return
     }
@@ -52,23 +52,45 @@ function middie (complete) {
       const url = that.url
       const i = that.i++
 
-      if (err || functions.length === i) {
+      if (err || middlewares.length === i) {
         complete(err, req, res)
         that.req = null
         that.res = null
         that.i = 0
         pool.release(that)
       } else {
-        if (!urls[i]) {
-          functions[i](req, res, that.done)
-        } else if (urls[i] && (urls[i] === url || urls[i].indexOf(url) > -1)) {
-          functions[i](req, res, that.done)
+        const middleware = middlewares[i]
+        const fn = middleware.fn
+        if (!middleware.path) {
+          fn(req, res, that.done)
+        } else if (middleware.wildcard && pathMatchWildcard(url, middleware.path)) {
+          fn(req, res, that.done)
+        } else if (middleware.path === url || (typeof middleware.path !== 'string' && middleware.path.indexOf(url) > -1)) {
+          fn(req, res, that.done)
         } else {
           that.done()
         }
       }
     }
   }
+}
+
+function hasWildcard (url) {
+  return typeof url === 'string' && url.length > 2 && url.charCodeAt(url.length - 1) === 42 /* * */ && url.charCodeAt(url.length - 2) === 47 /* / */
+}
+
+function pathMatchWildcard (url, wildcardUrl) {
+  if (url.length < wildcardUrl.length) {
+    return false
+  }
+
+  for (var i = 0; i < wildcardUrl.length - 2; i++) {
+    if (url.charCodeAt(i) !== wildcardUrl.charCodeAt(i)) {
+      return false
+    }
+  }
+
+  return true
 }
 
 module.exports = middie
