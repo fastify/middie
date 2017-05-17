@@ -61,12 +61,13 @@ function middie (complete) {
         that.i = 0
         pool.release(that)
       } else {
+        const fn = urls[i].fn
         if (!urls[i].path) {
-          urls[i].fn(req, res, that.done)
+          fn(req, res, that.done)
         } else if (urls[i].wildcard && pathMatchWildcard(url, urls[i].path)) {
-          urls[i].fn(req, res, that.done)
+          fn(req, res, that.done)
         } else if (urls[i].path === url || (typeof urls[i].path !== 'string' && urls[i].path.indexOf(url) > -1)) {
-          urls[i].fn(req, res, that.done)
+          fn(req, res, that.done)
         } else {
           that.done()
         }
