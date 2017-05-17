@@ -46,10 +46,14 @@ function _runMiddlewares (err, req, res) {
 <a name="restrict-usage"></a>
 #### Restrict middleware execution to a certain path(s)
 If you need to run a middleware only under certains path(s), just pass the path as first parameter to `use` and you are done!  
-*Note that this does not support routes with parameters, (eg: `/user/:id/comments`)*
+
+*Note that this does not support routes with parameters, (eg: `/user/:id/comments`) and wildcard is not supported in multiple paths.*
 ```js
 // Single path
 middie.use('/public', staticFiles('/assets'))
+
+// Wildcard path
+middie.use('/public/*', staticFiles('/assets'))
 
 // Multiple paths
 middie.use(['/public', '/dist'], staticFiles('/assets'))
