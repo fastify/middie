@@ -1,7 +1,6 @@
 'use strict'
 
 const reusify = require('reusify')
-const pathMatch = require('pathname-match')
 
 function middie (complete) {
   var middlewares = []
@@ -34,7 +33,7 @@ function middie (complete) {
     const holder = pool.get()
     holder.req = req
     holder.res = res
-    holder.url = pathMatch(req.url)
+    holder.url = sanitizeUrl(req.url)
     holder.done()
   }
 
@@ -91,6 +90,16 @@ function pathMatchWildcard (url, wildcardUrl) {
   }
 
   return true
+}
+
+function sanitizeUrl (url) {
+  for (var i = 0, len = url.length; i < len; i++) {
+    var charCode = url.charCodeAt(i)
+    if (charCode === 63 || charCode === 35) {
+      return url.slice(0, i)
+    }
+  }
+  return url
 }
 
 module.exports = middie
