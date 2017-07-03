@@ -42,7 +42,6 @@
     "x-xss-protection": "^1.0.0"
   },
   "dependencies": {
-    "pathname-match": "^1.2.0",
     "reusify": "^1.0.1"
   }
 }
