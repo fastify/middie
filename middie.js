@@ -24,9 +24,9 @@ function middie (complete) {
     return this
   }
 
-  function run (req, res) {
+  function run (req, res, ctx) {
     if (!middlewares.length) {
-      complete.call(this, null, req, res)
+      complete(null, req, res, ctx)
       return
     }
 
@@ -34,7 +34,7 @@ function middie (complete) {
     holder.req = req
     holder.res = res
     holder.url = sanitizeUrl(req.url)
-    holder.context = this
+    holder.context = ctx
     holder.done()
   }
 
@@ -55,7 +55,7 @@ function middie (complete) {
       const i = that.i++
 
       if (err || middlewares.length === i) {
-        complete.call(context, err, req, res)
+        complete(err, req, res, context)
         that.req = null
         that.res = null
         that.context = null
