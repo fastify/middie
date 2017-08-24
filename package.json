@@ -1,6 +1,6 @@
 {
   "name": "middie",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Middleware engine for Fastify",
   "main": "middie.js",
   "scripts": {
@@ -30,18 +30,18 @@
   },
   "homepage": "https://github.com/fastify/middleman#readme",
   "devDependencies": {
-    "cors": "^2.8.1",
+    "cors": "^2.8.4",
     "dns-prefetch-control": "^0.1.0",
     "frameguard": "^3.0.0",
     "hide-powered-by": "^1.0.0",
-    "hsts": "^2.0.0",
+    "hsts": "^2.1.0",
     "ienoopen": "^1.0.0",
     "pre-commit": "^1.2.2",
-    "standard": "^10.0.0",
-    "tap": "^10.1.0",
+    "standard": "^10.0.3",
+    "tap": "^10.7.2",
     "x-xss-protection": "^1.0.0"
   },
   "dependencies": {
-    "reusify": "^1.0.1"
+    "reusify": "^1.0.2"
   }
 }
