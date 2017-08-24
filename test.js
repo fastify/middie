@@ -209,11 +209,11 @@ test('Should strip the url to only match the pathname', t => {
 test('should keep the context', t => {
   t.plan(6)
 
-  const instance = middie(function (err, a, b) {
+  const instance = middie(function (err, a, b, ctx) {
     t.error(err)
     t.equal(a, req)
     t.equal(b, res)
-    t.ok(this.key)
+    t.ok(ctx.key)
   })
   const req = {
     url: '/test'
@@ -225,5 +225,5 @@ test('should keep the context', t => {
     next()
   }), instance)
 
-  instance.run.call({ key: true }, req, res)
+  instance.run(req, res, { key: true })
 })
