@@ -44,22 +44,22 @@ function _runMiddlewares (err, req, res) {
 ```
 <a name="keep-context"></a>
 #### Keep the context
-If you need it you can also keep the context of the calling function by calling `run` with `run.call(this, req, res)`, in this way you can avoid closures allocation.
+If you need it you can also keep the context of the calling function by calling `run` with `run(req, res, this)`, in this way you can avoid closures allocation.
 
 ```js
 http
   .createServer(function handler (req, res) {
-    middie.run.call({ context: 'object' }, req, res)
+    middie.run(req, res, { context: 'object' })
   })
   .listen(3000)
 
-function _runMiddlewares (err, req, res) {
+function _runMiddlewares (err, req, res, ctx) {
   if (err) {
     console.log(err)
     res.end(err)
     return
   }
-  console.log(this.context)
+  console.log(ctx)
 }
 ```
 
