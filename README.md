@@ -42,6 +42,26 @@ function _runMiddlewares (err, req, res) {
   // => routing function
 }
 ```
+<a name="keep-context"></a>
+#### Keep the context
+If you need it you can also keep the context of the calling function by calling `run` with `run(req, res, this)`, in this way you can avoid closures allocation.
+
+```js
+http
+  .createServer(function handler (req, res) {
+    middie.run(req, res, { context: 'object' })
+  })
+  .listen(3000)
+
+function _runMiddlewares (err, req, res, ctx) {
+  if (err) {
+    console.log(err)
+    res.end(err)
+    return
+  }
+  console.log(ctx)
+}
+```
 
 <a name="restrict-usage"></a>
 #### Restrict middleware execution to a certain path(s)

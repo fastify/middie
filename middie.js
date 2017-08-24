@@ -24,9 +24,9 @@ function middie (complete) {
     return this
   }
 
-  function run (req, res) {
+  function run (req, res, ctx) {
     if (!middlewares.length) {
-      complete(null, req, res)
+      complete(null, req, res, ctx)
       return
     }
 
@@ -34,6 +34,7 @@ function middie (complete) {
     holder.req = req
     holder.res = res
     holder.url = sanitizeUrl(req.url)
+    holder.context = ctx
     holder.done()
   }
 
@@ -42,6 +43,7 @@ function middie (complete) {
     this.req = null
     this.res = null
     this.url = null
+    this.context = null
     this.i = 0
 
     var that = this
@@ -49,12 +51,14 @@ function middie (complete) {
       const req = that.req
       const res = that.res
       const url = that.url
+      const context = that.context
       const i = that.i++
 
       if (err || middlewares.length === i) {
-        complete(err, req, res)
+        complete(err, req, res, context)
         that.req = null
         that.res = null
+        that.context = null
         that.i = 0
         pool.release(that)
       } else {
