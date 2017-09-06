@@ -39,7 +39,7 @@ function middie (complete) {
       return
     }
 
-    const holder = pool.get()
+    var holder = pool.get()
     holder.req = req
     holder.res = res
     holder.url = sanitizeUrl(req.url)
@@ -59,11 +59,11 @@ function middie (complete) {
 
     var that = this
     this.done = function (err) {
-      const req = that.req
-      const res = that.res
-      const url = that.url
-      const context = that.context
-      const i = that.i++
+      var req = that.req
+      var res = that.res
+      var url = that.url
+      var context = that.context
+      var i = that.i++
 
       req.url = that.originalUrl
 
@@ -75,9 +75,9 @@ function middie (complete) {
         that.i = 0
         pool.release(that)
       } else {
-        const middleware = middlewares[i]
-        const fn = middleware.fn
-        const regexp = middleware.regexp
+        var middleware = middlewares[i]
+        var fn = middleware.fn
+        var regexp = middleware.regexp
         if (!regexp) {
           fn(req, res, that.done)
         } else if (regexp) {
