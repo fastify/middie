@@ -2,6 +2,8 @@
 
 const middie = require('./middie')
 const t = require('tap')
+const http = require('http')
+const serveStatic = require('serve-static')
 const test = t.test
 
 test('use no function', t => {
@@ -120,38 +122,6 @@ test('run restricted by path', t => {
   instance.run(req, res)
 })
 
-test('run restricted by path with * at the end', t => {
-  t.plan(8)
-
-  const instance = middie(function (err, a, b) {
-    t.error(err)
-    t.equal(a, req)
-    t.equal('/test/aaa/bbb', req.url)
-    t.equal(b, res)
-  })
-  const req = {
-    url: '/test/aaa/bbb'
-  }
-  const res = {}
-
-  t.equal(instance.use('/test/*', function (req, res, next) {
-    t.ok('function called')
-    next()
-  }), instance)
-
-  t.equal(instance.use('/test/aaa/bbb/*', function (req, res, next) {
-    t.fail('should not call this function')
-    next()
-  }), instance)
-
-  t.equal(instance.use('/test/aaa*', function (req, res, next) {
-    t.fail('should not call this function')
-    next()
-  }), instance)
-
-  instance.run(req, res)
-})
-
 test('run restricted by array path', t => {
   t.plan(9)
 
@@ -190,7 +160,7 @@ test('Should strip the url to only match the pathname', t => {
   const instance = middie(function (err, a, b) {
     t.error(err)
     t.equal(a, req)
-    t.equal('/test#foo?bin=baz', req.url)
+    t.equal(req.url, '/test#foo?bin=baz')
     t.equal(b, res)
   })
   const req = {
@@ -226,4 +196,44 @@ test('should keep the context', t => {
   }), instance)
 
   instance.run(req, res, { key: true })
+})
+
+test('basic serve static', t => {
+  const instance = middie(function () {
+    t.fail('the default route should never be called')
+  })
+  instance.use(serveStatic(__dirname))
+  const server = http.createServer(instance.run.bind(instance))
+
+  server.listen(0, function () {
+    http.get(`http://localhost:${server.address().port}/README.md`, function (res) {
+      t.is(res.statusCode, 200)
+      res.resume()
+      server.close()
+      server.unref()
+      t.end()
+    })
+  })
+})
+
+test('limit serve static to a specific folder', t => {
+  const instance = middie(function () {
+    t.fail('the default route should never be called')
+    req.destroy()
+    server.close()
+    server.unref()
+  })
+  instance.use('/assets', serveStatic(__dirname))
+  const server = http.createServer(instance.run.bind(instance))
+  var req
+
+  server.listen(0, function () {
+    req = http.get(`http://localhost:${server.address().port}/assets/README.md`, function (res) {
+      t.is(res.statusCode, 200)
+      res.resume()
+      server.close()
+      server.unref()
+      t.end()
+    })
+  })
 })

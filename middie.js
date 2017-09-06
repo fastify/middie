@@ -1,6 +1,7 @@
 'use strict'
 
 const reusify = require('reusify')
+const pathToRegexp = require('path-to-regexp')
 
 function middie (complete) {
   var middlewares = []
@@ -16,10 +17,18 @@ function middie (complete) {
       f = url
       url = null
     }
+
+    var regexp
+    if (url) {
+      regexp = pathToRegexp(url, [], {
+        end: false,
+        strict: false
+      })
+    }
+
     middlewares.push({
-      path: url,
-      fn: f,
-      wildcard: hasWildcard(url)
+      regexp,
+      fn: f
     })
     return this
   }
@@ -34,6 +43,7 @@ function middie (complete) {
     holder.req = req
     holder.res = res
     holder.url = sanitizeUrl(req.url)
+    holder.originalUrl = req.url
     holder.context = ctx
     holder.done()
   }
@@ -43,6 +53,7 @@ function middie (complete) {
     this.req = null
     this.res = null
     this.url = null
+    this.originalUrl = null
     this.context = null
     this.i = 0
 
@@ -54,6 +65,8 @@ function middie (complete) {
       const context = that.context
       const i = that.i++
 
+      req.url = that.originalUrl
+
       if (err || middlewares.length === i) {
         complete(err, req, res, context)
         that.req = null
@@ -64,36 +77,23 @@ function middie (complete) {
       } else {
         const middleware = middlewares[i]
         const fn = middleware.fn
-        if (!middleware.path) {
+        const regexp = middleware.regexp
+        if (!regexp) {
           fn(req, res, that.done)
-        } else if (middleware.wildcard && pathMatchWildcard(url, middleware.path)) {
-          fn(req, res, that.done)
-        } else if (middleware.path === url || (typeof middleware.path !== 'string' && middleware.path.indexOf(url) > -1)) {
-          fn(req, res, that.done)
+        } else if (regexp) {
+          var result = regexp.exec(url)
+          if (result) {
+            req.url = req.url.replace(result[0], '/')
+            fn(req, res, that.done)
+          } else {
+            that.done()
+          }
         } else {
           that.done()
         }
       }
     }
   }
-}
-
-function hasWildcard (url) {
-  return typeof url === 'string' && url.length > 2 && url.charCodeAt(url.length - 1) === 42 /* * */ && url.charCodeAt(url.length - 2) === 47 /* / */
-}
-
-function pathMatchWildcard (url, wildcardUrl) {
-  if (url.length < wildcardUrl.length) {
-    return false
-  }
-
-  for (var i = 0; i < wildcardUrl.length - 2; i++) {
-    if (url.charCodeAt(i) !== wildcardUrl.charCodeAt(i)) {
-      return false
-    }
-  }
-
-  return true
 }
 
 function sanitizeUrl (url) {
