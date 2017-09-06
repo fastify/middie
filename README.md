@@ -67,18 +67,18 @@ function _runMiddlewares (err, req, res, ctx) {
 #### Restrict middleware execution to a certain path(s)
 If you need to run a middleware only under certains path(s), just pass the path as first parameter to `use` and you are done!  
 
-*Note that this does not support routes with parameters, (eg: `/user/:id/comments`) and wildcard is not supported in multiple paths.*
+*Note that this does support routes with parameters, e.g. `/user/:id/comments`, but all the matched parameters will be discarded*
+
 ```js
 // Single path
 middie.use('/public', staticFiles('/assets'))
 
-// Wildcard path
-middie.use('/public/*', staticFiles('/assets'))
-
 // Multiple paths
 middie.use(['/public', '/dist'], staticFiles('/assets'))
-
 ```
+
+To guarantee compatibility with Express, adding a prefix uses [`path-to-regexp`](https://www.npmjs.com/package/path-to-regexp) to compute
+a `RegExp`, which is then used to math every request: it is signficantly slower.
 
 ## Acknowledgements
 
