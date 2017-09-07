@@ -37,11 +37,13 @@
     "hsts": "^2.1.0",
     "ienoopen": "^1.0.0",
     "pre-commit": "^1.2.2",
+    "serve-static": "^1.12.4",
     "standard": "^10.0.3",
     "tap": "^10.7.2",
     "x-xss-protection": "^1.0.0"
   },
   "dependencies": {
+    "path-to-regexp": "^2.0.0",
     "reusify": "^1.0.2"
   }
 }
