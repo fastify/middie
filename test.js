@@ -237,3 +237,48 @@ test('limit serve static to a specific folder', t => {
     })
   })
 })
+
+test('should match all chain', t => {
+  t.plan(2)
+  const instance = middie(function (err, req, res) {
+    t.error(err)
+    t.equal(req, {
+      url: '/inner/in/depth',
+      undefined: true,
+      null: true,
+      empty: true,
+      root: true,
+      inner: true,
+      innerSlashed: true,
+      innerIn: true,
+      innerInSlashed: true,
+      innerInDepth: true,
+      innerInDepthSlashed: true
+    })
+  })
+  const req = {
+    url: '/inner/in/depth'
+  }
+  const res = {}
+
+  const prefixes = [
+    { prefix: undefined, name: 'undefined' },
+    { prefix: null, name: 'undefined' },
+    { prefix: '', name: 'empty' },
+    { prefix: '/', name: 'root' },
+    { prefix: '/inner', name: 'inner' },
+    { prefix: '/inner/', name: 'innerSlashed' },
+    { prefix: '/inner/in', name: 'innerIn' },
+    { prefix: '/inner/in/', name: 'innerInSlashed' },
+    { prefix: '/inner/in/depth', name: 'innerInDepth' },
+    { prefix: '/inner/in/depth/', name: 'innerInDepthSlashed' }
+  ]
+  prefixes.forEach(function (o) {
+    instance.use(o.prefix, function (req, res, next) {
+      req[o.name] = true
+      next()
+    })
+  })
+
+  instance.run(req, res)
+})
