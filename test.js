@@ -242,7 +242,7 @@ test('should match all chain', t => {
   t.plan(2)
   const instance = middie(function (err, req, res) {
     t.error(err)
-    t.equal(req, {
+    t.deepEqual(req, {
       url: '/inner/in/depth',
       undefined: true,
       null: true,
@@ -263,7 +263,7 @@ test('should match all chain', t => {
 
   const prefixes = [
     { prefix: undefined, name: 'undefined' },
-    { prefix: null, name: 'undefined' },
+    { prefix: null, name: 'null' },
     { prefix: '', name: 'empty' },
     { prefix: '/', name: 'root' },
     { prefix: '/inner', name: 'inner' },
@@ -275,6 +275,7 @@ test('should match all chain', t => {
   ]
   prefixes.forEach(function (o) {
     instance.use(o.prefix, function (req, res, next) {
+      if (req[o.name]) throw new Error('Called twice!')
       req[o.name] = true
       next()
     })

@@ -43,7 +43,7 @@
     "x-xss-protection": "^1.0.0"
   },
   "dependencies": {
-    "path-to-regexp": "^2.0.0",
+    "path-to-regexp": "^0.1.7",
     "reusify": "^1.0.2"
   }
 }
