@@ -20,7 +20,7 @@ function middie (complete) {
 
     var regexp
     if (url) {
-      regexp = pathToRegexp(url, [], {
+      regexp = pathToRegexp(sanitizePrefixUrl(url), [], {
         end: false,
         strict: false
       })
@@ -103,6 +103,13 @@ function sanitizeUrl (url) {
       return url.slice(0, i)
     }
   }
+  return url
+}
+
+function sanitizePrefixUrl (url) {
+  if (url === '') return url
+  if (url === '/') return ''
+  if (url[url.length - 1] === '/') return url.slice(0, -1)
   return url
 }
 
