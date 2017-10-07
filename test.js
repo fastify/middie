@@ -283,3 +283,29 @@ test('should match all chain', t => {
 
   instance.run(req, res)
 })
+
+test('should match the same slashed path', t => {
+  t.plan(3)
+  const instance = middie(function (err, req, res) {
+    t.error(err)
+    t.deepEqual(req, {
+      url: '/path'
+    })
+  })
+  const req = {
+    url: '/path'
+  }
+  const res = {}
+
+  instance.use('/path/', function (req, res, next) {
+    t.pass('function called')
+    next()
+  })
+
+  instance.use('/path/inner', function (req, res, next) {
+    t.fail()
+    next()
+  })
+
+  instance.run(req, res)
+})
