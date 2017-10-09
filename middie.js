@@ -78,9 +78,7 @@ function middie (complete) {
         var middleware = middlewares[i]
         var fn = middleware.fn
         var regexp = middleware.regexp
-        if (!regexp) {
-          fn(req, res, that.done)
-        } else if (regexp) {
+        if (regexp) {
           var result = regexp.exec(url)
           if (result) {
             req.url = req.url.replace(result[0], '/')
@@ -89,7 +87,7 @@ function middie (complete) {
             that.done()
           }
         } else {
-          that.done()
+          fn(req, res, that.done)
         }
       }
     }
