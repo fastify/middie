@@ -198,6 +198,25 @@ test('should keep the context', t => {
   instance.run(req, res, { key: true })
 })
 
+test('should add `originalUrl` property to req', t => {
+  t.plan(2)
+
+  const instance = middie(function (err) {
+    t.error(err)
+  })
+  const req = {
+    url: '/test'
+  }
+  const res = {}
+
+  instance.use(function (req, res, next) {
+    t.equal(req.originalUrl, '/test')
+    next()
+  })
+
+  instance.run(req, res)
+})
+
 test('basic serve static', t => {
   const instance = middie(function () {
     t.fail('the default route should never be called')
@@ -244,6 +263,7 @@ test('should match all chain', t => {
     t.error(err)
     t.deepEqual(req, {
       url: '/inner/in/depth',
+      originalUrl: '/inner/in/depth',
       undefined: true,
       null: true,
       empty: true,
@@ -289,7 +309,8 @@ test('should match the same slashed path', t => {
   const instance = middie(function (err, req, res) {
     t.error(err)
     t.deepEqual(req, {
-      url: '/path'
+      url: '/path',
+      originalUrl: '/path'
     })
   })
   const req = {

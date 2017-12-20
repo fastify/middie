@@ -39,11 +39,12 @@ function middie (complete) {
       return
     }
 
+    req.originalUrl = req.url
+
     var holder = pool.get()
     holder.req = req
     holder.res = res
     holder.url = sanitizeUrl(req.url)
-    holder.originalUrl = req.url
     holder.context = ctx
     holder.done()
   }
@@ -53,7 +54,6 @@ function middie (complete) {
     this.req = null
     this.res = null
     this.url = null
-    this.originalUrl = null
     this.context = null
     this.i = 0
 
@@ -65,7 +65,7 @@ function middie (complete) {
       var context = that.context
       var i = that.i++
 
-      req.url = that.originalUrl
+      req.url = req.originalUrl
 
       if (err || middlewares.length === i) {
         complete(err, req, res, context)
