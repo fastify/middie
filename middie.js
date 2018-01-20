@@ -67,6 +67,15 @@ function middie (complete) {
 
       req.url = req.originalUrl
 
+      if (res.finished === true) {
+        that.req = null
+        that.res = null
+        that.context = null
+        that.i = 0
+        pool.release(that)
+        return
+      }
+
       if (err || middlewares.length === i) {
         complete(err, req, res, context)
         that.req = null
