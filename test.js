@@ -330,3 +330,32 @@ test('should match the same slashed path', t => {
 
   instance.run(req, res)
 })
+
+test('if the function calls res.end the iterator should stop', t => {
+  t.plan(1)
+
+  const instance = middie(function () {
+    t.fail('we should not be here')
+  })
+  const req = {
+    url: '/test'
+  }
+  const res = {
+    finished: false,
+    end: function () {
+      t.pass('res.end')
+      this.finished = true
+    }
+  }
+
+  instance
+    .use(function (req, res, next) {
+      res.end('hello')
+      next()
+    })
+    .use(function (req, res, next) {
+      t.fail('we should not be here')
+    })
+
+  instance.run(req, res)
+})
