@@ -12,12 +12,7 @@ function middie (complete) {
     run
   }
 
-  function use (url, f) {
-    if (typeof url === 'function') {
-      f = url
-      url = null
-    }
-
+  function setMiddleware (url, f) {
     var regexp
     if (url) {
       regexp = pathToRegexp(sanitizePrefixUrl(url), [], {
@@ -30,6 +25,22 @@ function middie (complete) {
       regexp,
       fn: f
     })
+  }
+
+  function use (url, f) {
+    if (typeof f === 'undefined') {
+      f = url
+      url = null
+    }
+
+    if (Object.prototype.toString.call(f) === '[object Array]') {
+      for (var i = 0, len = f.length; i < len; i++) {
+        setMiddleware(url, f[i])
+      }
+    } else {
+      setMiddleware(url, f)
+    }
+
     return this
   }
 

@@ -5,7 +5,9 @@
   "main": "middie.js",
   "scripts": {
     "test": "standard && tap test.js",
-    "coverage": "tap --cov --coverage-report=html test.js"
+    "coverage": "tap --cov --coverage-report=html test.js",
+    "lint": "standard",
+    "lint:fix": "standard --fix"
   },
   "keywords": [
     "fastify",
