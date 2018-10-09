@@ -26,11 +26,11 @@ function middie (complete) {
       })
     }
 
-    if (Object.prototype.toString.call(f) === '[object Array]') {
-      for (var i = 0, len = f.length; i < len; i++) {
+    if (Array.isArray(f)) {
+      for (var val of f) {
         middlewares.push({
           regexp,
-          fn: f[i]
+          fn: val
         })
       }
     } else {
