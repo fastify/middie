@@ -154,6 +154,72 @@ test('run restricted by array path', t => {
   instance.run(req, res)
 })
 
+test('run array of middleware restricted by path', t => {
+  t.plan(10)
+
+  const instance = middie(function (err, a, b) {
+    t.error(err)
+    t.equal(a, req)
+    t.equal('/test', req.url)
+    t.equal(b, res)
+  })
+  const req = {
+    url: '/test'
+  }
+  const res = {}
+
+  t.equal(instance.use([function (req, res, next) {
+    t.ok('function called')
+    next()
+  }, function (req, res, next) {
+    t.ok('function called')
+    next()
+  }]), instance)
+
+  t.equal(instance.use('/test', [function (req, res, next) {
+    t.ok('function called')
+    next()
+  }, function (req, res, next) {
+    t.ok('function called')
+    next()
+  }]), instance)
+
+  instance.run(req, res)
+})
+
+test('run array of middleware restricted by array path', t => {
+  t.plan(10)
+
+  const instance = middie(function (err, a, b) {
+    t.error(err)
+    t.equal(a, req)
+    t.equal('/test', req.url)
+    t.equal(b, res)
+  })
+  const req = {
+    url: '/test'
+  }
+  const res = {}
+
+  t.equal(instance.use([function (req, res, next) {
+    t.ok('function called')
+    next()
+  }, function (req, res, next) {
+    t.ok('function called')
+    next()
+  }]), instance)
+
+  t.equal(instance.use(['/test', '/other-path'], [function (req, res, next) {
+    t.ok('function called')
+    next()
+  }, function (req, res, next) {
+    t.ok('function called')
+    next()
+  }]), instance)
+
+  instance.run(req, res)
+})
+
 test('Should strip the url to only match the pathname', t => {
   t.plan(6)
 
