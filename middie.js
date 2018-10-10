@@ -13,7 +13,7 @@ function middie (complete) {
   }
 
   function use (url, f) {
-    if (typeof f === 'undefined') {
+    if (f === undefined) {
       f = url
       url = null
     }
