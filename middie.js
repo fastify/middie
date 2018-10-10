@@ -13,7 +13,7 @@ function middie (complete) {
   }
 
   function use (url, f) {
-    if (typeof url === 'function') {
+    if (f === undefined) {
       f = url
       url = null
     }
@@ -26,10 +26,20 @@ function middie (complete) {
       })
     }
 
-    middlewares.push({
-      regexp,
-      fn: f
-    })
+    if (Array.isArray(f)) {
+      for (var val of f) {
+        middlewares.push({
+          regexp,
+          fn: val
+        })
+      }
+    } else {
+      middlewares.push({
+        regexp,
+        fn: f
+      })
+    }
+
     return this
   }
 

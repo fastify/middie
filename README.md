@@ -6,7 +6,7 @@
 
 *middie* is the module that add middlewares support on steroids to [Fastify](https://www.npmjs.com/package/fastify).
 
-The syntax style is the same as [express](http://npm.im/express)/[connect](https://www.npmjs.com/package/connect).  
+The syntax style is the same as [express](http://npm.im/express)/[connect](https://www.npmjs.com/package/connect).
 Does not support the full syntax `middleware(err, req, res, next)`, because error handling is done inside Fastify.
 
 If you want to see how use this module with Fastify, check [here](https://github.com/fastify/fastify/#fastifyusemiddlewarereq-res-next).
@@ -67,7 +67,7 @@ function _runMiddlewares (err, req, res, ctx) {
 
 <a name="restrict-usage"></a>
 #### Restrict middleware execution to a certain path(s)
-If you need to run a middleware only under certains path(s), just pass the path as first parameter to `use` and you are done!  
+If you need to run a middleware only under certains path(s), just pass the path as first parameter to `use` and you are done!
 
 *Note that this does support routes with parameters, e.g. `/user/:id/comments`, but all the matched parameters will be discarded*
 
@@ -75,8 +75,14 @@ If you need to run a middleware only under certains path(s), just pass the path 
 // Single path
 middie.use('/public', staticFiles('/assets'))
 
+// Multiple middleware
+middie.use('/public', [cors(), staticFiles('/assets')])
+
 // Multiple paths
 middie.use(['/public', '/dist'], staticFiles('/assets'))
+
+// Multiple paths and multiple middleware
+middie.use(['/public', '/dist'], [cors(), staticFiles('/assets')])
 ```
 
 To guarantee compatibility with Express, adding a prefix uses [`path-to-regexp`](https://www.npmjs.com/package/path-to-regexp) to compute
