@@ -100,7 +100,10 @@ function middie (complete) {
         if (regexp) {
           var result = regexp.exec(url)
           if (result) {
-            req.url = req.url.replace(result[0], '/')
+            req.url = req.url.replace(result[0], '')
+            if (!req.url.startsWith('/')) {
+              req.url = '/' + req.url
+            }
             fn(req, res, that.done)
           } else {
             that.done()
