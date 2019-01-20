@@ -101,7 +101,7 @@ function middie (complete) {
           var result = regexp.exec(url)
           if (result) {
             req.url = req.url.replace(result[0], '')
-            if (!req.url.startsWith('/')) {
+            if (req.url.startsWith('/') === false) {
               req.url = '/' + req.url
             }
             fn(req, res, that.done)
