@@ -159,6 +159,38 @@ test('run restricted by path - prefix override', t => {
   instance.run(req, res)
 })
 
+test('run restricted by path - prefix override 2', t => {
+  t.plan(10)
+
+  const instance = middie(function (err, a, b) {
+    t.error(err)
+    t.equal(a, req)
+    t.equal('/tasks-api/task', req.url)
+    t.equal(b, res)
+  })
+  const req = {
+    url: '/tasks-api/task'
+  }
+  const res = {}
+
+  t.equal(instance.use(function (req, res, next) {
+    t.ok('function called')
+    next()
+  }), instance)
+
+  t.equal(instance.use('/tasks-api', function (req, res, next) {
+    t.ok('function called')
+    next()
+  }), instance)
+
+  t.equal(instance.use('/tasks-api', function (req, res, next) {
+    t.equal('/task', req.url)
+    next()
+  }), instance)
+
+  instance.run(req, res)
+})
+
 test('run restricted by array path', t => {
   t.plan(9)
 
