@@ -91,7 +91,7 @@ test('stop the middleware chain if one errors', t => {
 })
 
 test('run restricted by path', t => {
-  t.plan(9)
+  t.plan(11)
 
   const instance = middie(function (err, a, b) {
     t.error(err)
@@ -114,8 +114,77 @@ test('run restricted by path', t => {
     next()
   }), instance)
 
+  t.equal(instance.use('/test', function (req, res, next) {
+    t.equal('/', req.url)
+    next()
+  }), instance)
+
   t.equal(instance.use('/no-call', function (req, res, next) {
     t.fail('should not call this function')
+    next()
+  }), instance)
+
+  instance.run(req, res)
+})
+
+test('run restricted by path - prefix override', t => {
+  t.plan(10)
+
+  const instance = middie(function (err, a, b) {
+    t.error(err)
+    t.equal(a, req)
+    t.equal('/test/other/one', req.url)
+    t.equal(b, res)
+  })
+  const req = {
+    url: '/test/other/one'
+  }
+  const res = {}
+
+  t.equal(instance.use(function (req, res, next) {
+    t.ok('function called')
+    next()
+  }), instance)
+
+  t.equal(instance.use('/test', function (req, res, next) {
+    t.ok('function called')
+    next()
+  }), instance)
+
+  t.equal(instance.use('/test', function (req, res, next) {
+    t.equal('/other/one', req.url)
+    next()
+  }), instance)
+
+  instance.run(req, res)
+})
+
+test('run restricted by path - prefix override 2', t => {
+  t.plan(10)
+
+  const instance = middie(function (err, a, b) {
+    t.error(err)
+    t.equal(a, req)
+    t.equal('/tasks-api/task', req.url)
+    t.equal(b, res)
+  })
+  const req = {
+    url: '/tasks-api/task'
+  }
+  const res = {}
+
+  t.equal(instance.use(function (req, res, next) {
+    t.ok('function called')
+    next()
+  }), instance)
+
+  t.equal(instance.use('/tasks-api', function (req, res, next) {
+    t.ok('function called')
+    next()
+  }), instance)
+
+  t.equal(instance.use('/tasks-api', function (req, res, next) {
+    t.equal('/task', req.url)
     next()
   }), instance)
 
