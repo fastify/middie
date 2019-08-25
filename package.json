@@ -32,7 +32,7 @@
   "devDependencies": {
     "pre-commit": "^1.2.2",
     "serve-static": "^1.12.4",
-    "standard": "^13.0.1",
+    "standard": "^14.0.2",
     "tap": "^12.6.5"
   },
   "dependencies": {
