@@ -1,7 +1,7 @@
 'use strict'
 
 const reusify = require('reusify')
-const pathToRegexp = require('path-to-regexp')
+const { pathToRegexp } = require('path-to-regexp')
 
 function middie (complete) {
   var middlewares = []
