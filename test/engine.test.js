@@ -1,8 +1,9 @@
 'use strict'
 
-const middie = require('./middie')
+const middie = require('../engine')
 const t = require('tap')
 const http = require('http')
+const { join } = require('path')
 const serveStatic = require('serve-static')
 const test = t.test
 
@@ -356,7 +357,7 @@ test('basic serve static', t => {
   const instance = middie(function () {
     t.fail('the default route should never be called')
   })
-  instance.use(serveStatic(__dirname))
+  instance.use(serveStatic(join(__dirname, '..')))
   const server = http.createServer(instance.run.bind(instance))
 
   server.listen(0, function () {
@@ -377,7 +378,7 @@ test('limit serve static to a specific folder', t => {
     server.close()
     server.unref()
   })
-  instance.use('/assets', serveStatic(__dirname))
+  instance.use('/assets', serveStatic(join(__dirname, '..')))
   const server = http.createServer(instance.run.bind(instance))
   var req
 
