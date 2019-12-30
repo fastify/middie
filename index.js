@@ -15,7 +15,6 @@ function middiePlugin (fastify, options, next) {
   fastify[kMiddie] = Middie(onMiddieEnd)
 
   fastify
-    .addHook('onRequest', enhanceRequest)
     .addHook('onRequest', runMiddie)
     .addHook('onRegister', onRegister)
 
@@ -33,19 +32,15 @@ function middiePlugin (fastify, options, next) {
     return this
   }
 
-  function enhanceRequest (req, reply, next) {
-    req.raw.originalUrl = req.raw.url
-    req.raw.id = req.id
-    req.raw.hostname = req.hostname
-    req.raw.ip = req.ip
-    req.raw.ips = req.ips
-    req.raw.log = req.log
-    reply.raw.log = req.log
-    next()
-  }
-
   function runMiddie (req, reply, next) {
     if (this[kMiddlewares].length > 0) {
+      req.raw.originalUrl = req.raw.url
+      req.raw.id = req.id
+      req.raw.hostname = req.hostname
+      req.raw.ip = req.ip
+      req.raw.ips = req.ips
+      req.raw.log = req.log
+      reply.raw.log = req.log
       this[kMiddie].run(req.raw, reply.raw, next)
     } else {
       next()
