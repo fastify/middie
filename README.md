@@ -199,6 +199,9 @@ Fastify offers some alternatives to the most commonly used middlewares, followin
 This project is kindly sponsored by:
 - [nearForm](http://nearform.com)
 
+Past sponsors:
+- [LetzDoIt](http://www.letzdoitapp.com/)
+
 ## License
 
 Licensed under [MIT](./LICENSE).
