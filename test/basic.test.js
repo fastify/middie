@@ -35,6 +35,63 @@ test('Should support connect style middlewares', t => {
   })
 })
 
+test('Should support connect style middlewares (async await)', async t => {
+  t.plan(3)
+  const fastify = Fastify()
+  t.teardown(fastify.close)
+
+  await fastify.register(middiePlugin)
+  fastify.use(cors())
+
+  fastify.get('/', async (req, reply) => {
+    return { hello: 'world' }
+  })
+
+  const address = await fastify.listen(0)
+  return new Promise((resolve, reject) => {
+    sget({
+      method: 'GET',
+      url: address
+    }, (err, res, data) => {
+      t.error(err)
+      t.match(res.headers, {
+        'access-control-allow-origin': '*'
+      })
+      t.deepEqual(JSON.parse(data), { hello: 'world' })
+      resolve()
+    })
+  })
+})
+
+test('Should support connect style middlewares (async await after)', async t => {
+  t.plan(3)
+  const fastify = Fastify()
+  t.teardown(fastify.close)
+
+  fastify.register(middiePlugin)
+  await fastify.after()
+  fastify.use(cors())
+
+  fastify.get('/', async (req, reply) => {
+    return { hello: 'world' }
+  })
+
+  const address = await fastify.listen(0)
+  return new Promise((resolve, reject) => {
+    sget({
+      method: 'GET',
+      url: address
+    }, (err, res, data) => {
+      t.error(err)
+      t.match(res.headers, {
+        'access-control-allow-origin': '*'
+      })
+      t.deepEqual(JSON.parse(data), { hello: 'world' })
+      resolve()
+    })
+  })
+})
+
 test('Should support per path middlewares', t => {
   t.plan(5)
   const fastify = Fastify()
@@ -200,7 +257,9 @@ test('Encapsulation support / 4', t => {
   t.teardown(fastify.close)
 
   fastify.register(middiePlugin)
-    .after(() => fastify.use(middleware1))
+  fastify.after(() => {
+    fastify.use(middleware1)
+  })
 
   fastify.register((instance, opts, next) => {
     instance.use(middleware2)
@@ -258,7 +317,9 @@ test('Encapsulation support / 5', t => {
   t.teardown(fastify.close)
 
   fastify.register(middiePlugin)
-    .after(() => fastify.use(middleware1))
+  fastify.after(() => {
+    fastify.use(middleware1)
+  })
 
   fastify.register((instance, opts, next) => {
     instance.use(middleware2)
