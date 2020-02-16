@@ -38,8 +38,8 @@ const fastify = require('fastify')()
 fastify.register(subsystem)
 
 async function subsystem (fastify, opts) {
-  fastify.register(require('middie'))
-    .after(() => fastify.use(require('cors')()))
+  await fastify.register(require('middie'))
+  fastify.use(require('cors')())
 }
 ```
 
