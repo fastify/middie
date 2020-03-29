@@ -38,10 +38,5 @@
   "dependencies": {
     "path-to-regexp": "^4.0.0",
     "reusify": "^1.0.2"
-  },
-  "greenkeeper": {
-    "ignore": [
-      "tap"
-    ]
   }
 }
