@@ -1,6 +1,6 @@
 # middie
 
-[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/) [![Build Status](https://travis-ci.org/fastify/middie.svg?branch=master)](https://travis-ci.org/fastify/middie)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/) ![](https://github.com/fastify/fastify/workflows/ci/badge.svg)
 
 *middie* is the plugin that add middlewares support on steroids to [Fastify](https://www.npmjs.com/package/fastify).
 

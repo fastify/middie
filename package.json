@@ -43,10 +43,5 @@
     "fastify-plugin": "^1.6.0",
     "path-to-regexp": "^6.1.0",
     "reusify": "^1.0.4"
-  },
-  "greenkeeper": {
-    "ignore": [
-      "tap"
-    ]
   }
 }
