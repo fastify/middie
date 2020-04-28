@@ -16,15 +16,20 @@ npm install middie
 ## Usage
 Register the plugin and start using your middlewares.
 ```js
-const fastify = require('fastify')()
-fastify.register(require('middie'))
-  .after(() => {
-     // do you know we also have cors support?
-     // https://github.com/fastify/fastify-cors
-    fastify.use(require('cors')())
-  })
+const Fastify = require('fastify')
 
-fastify.listen(3000)
+async function build () {
+  const fastify = Fastify()
+  await fastify.register(require('middie'))
+  // do you know we also have cors support?
+  // https://github.com/fastify/fastify-cors
+  fastify.use(require('cors')())
+  return fastify
+}
+
+build()
+  .then(fastify => fastify.listen(3000))
+  .catch(console.log)
 ```
 
 ### Encapsulation support
