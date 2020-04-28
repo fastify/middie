@@ -2,9 +2,9 @@
   "name": "middie",
   "version": "4.1.0",
   "description": "Middleware engine for Fastify",
-  "main": "middie.js",
+  "main": "index.js",
   "scripts": {
-    "test": "standard && tap test.js",
+    "test": "standard && tap --no-coverage test/*.test.js",
     "coverage": "tap --cov --coverage-report=html test.js"
   },
   "keywords": [
@@ -30,13 +30,21 @@
   },
   "homepage": "https://github.com/fastify/middleman#readme",
   "devDependencies": {
+    "cors": "^2.8.5",
+    "fastify": "^3.0.0-alpha.1",
+    "helmet": "^3.21.2",
     "pre-commit": "^1.2.2",
-    "serve-static": "^1.12.4",
-    "standard": "^14.0.2",
-    "tap": "^12.6.5"
+    "serve-static": "^1.14.1",
+    "simple-get": "^3.1.0",
+    "standard": "^14.3.1",
+    "tap": "^14.10.5"
   },
   "dependencies": {
-    "path-to-regexp": "^4.0.0",
-    "reusify": "^1.0.2"
+    "fastify-plugin": "^2.0.0",
+    "path-to-regexp": "^6.1.0",
+    "reusify": "^1.0.4"
+  },
+  "engines": {
+    "node": ">=10.0.0"
   }
 }

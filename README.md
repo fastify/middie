@@ -2,22 +2,125 @@
 
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/) ![](https://github.com/fastify/fastify/workflows/ci/badge.svg)
 
-*middie* is the module that add middlewares support on steroids to [Fastify](https://www.npmjs.com/package/fastify).
+*middie* is the plugin that add middlewares support on steroids to [Fastify](https://www.npmjs.com/package/fastify).
 
 The syntax style is the same as [express](http://npm.im/express)/[connect](https://www.npmjs.com/package/connect).
 Does not support the full syntax `middleware(err, req, res, next)`, because error handling is done inside Fastify.
 
-If you want to see how use this module with Fastify, check [here](https://github.com/fastify/fastify/#fastifyusemiddlewarereq-res-next).
-
 ## Install
 
 ```
-npm install middie --save
+npm install middie
 ```
-<a name="usage"></a>
+
+## Usage
+Register the plugin and start using your middlewares.
+```js
+const Fastify = require('fastify')
+
+async function build () {
+  const fastify = Fastify()
+  await fastify.register(require('middie'))
+  // do you know we also have cors support?
+  // https://github.com/fastify/fastify-cors
+  fastify.use(require('cors')())
+  return fastify
+}
+
+build()
+  .then(fastify => fastify.listen(3000))
+  .catch(console.log)
+```
+
+### Encapsulation support
+
+The encapsulation works as usual with Fastify, you can register the plugin in a subsystem and your code will work only inside there, or you can declare the middie plugin top level and register a middleware in a nested plugin, and the middleware will be executed only for the nested routes of the specific plugin.
+
+*Register the plugin in its own subsystem:*
+```js
+const fastify = require('fastify')()
+
+fastify.register(subsystem)
+
+async function subsystem (fastify, opts) {
+  await fastify.register(require('middie'))
+  fastify.use(require('cors')())
+}
+```
+
+*Register a middleware in a specific plugin:*
+```js
+const fastify = require('fastify')()
+
+fastify
+  .register(require('middie'))
+  .register(subsystem)
+
+async function subsystem (fastify, opts) {
+  fastify.use(require('cors')())
+}
+```
+
+### Hooks and middlewares
+
+Every registered middleware will be run during the `onRequest` hook phase, so the registration order is important.  
+Take a look at the [Lifecycle](https://www.fastify.io/docs/latest/Lifecycle/) documentation page to understand better how every request is executed.
+
+```js
+const fastify = require('fastify')()
+
+fastify
+  .register(require('middie'))
+  .register(subsystem)
+
+async function subsystem (fastify, opts) {
+  fastify.addHook('onRequest', async (req, reply) => {
+    console.log('first')
+  })
+
+  fastify.use((req, res, next) => {
+    console.log('second')
+    next()
+  })
+
+  fastify.addHook('onRequest', async (req, reply) => {
+    console.log('third')
+  })
+}
+```
+
+### Restrict middleware execution to a certain path(s)
+
+If you need to run a middleware only under certain path(s), just pass the path as first parameter to use and you are done!
+
+```js
+const fastify = require('fastify')()
+const path = require('path')
+const serveStatic = require('serve-static')
+
+fastify
+  .register(require('middie'))
+  .register(subsystem)
+
+async function subsystem (fastify, opts) {
+  // Single path
+  fastify.use('/css', serveStatic(path.join(__dirname, '/assets')))
+
+  // Wildcard path
+  fastify.use('/css/*', serveStatic(path.join(__dirname, '/assets')))
+
+  // Multiple paths
+  fastify.use(['/css', '/js'], serveStatic(path.join(__dirname, '/assets')))
+}
+```
+
+# Middie Engine
+
+You can also use the engine itself without the Fastify plugin system.
+
 ## Usage
 ```js
-const Middie = require('middie')
+const Middie = require('middie/engine')
 const http = require('http')
 const helmet = require('helmet')
 const cors = require('cors')
@@ -86,12 +189,23 @@ middie.use(['/public', '/dist'], [cors(), staticFiles('/assets')])
 To guarantee compatibility with Express, adding a prefix uses [`path-to-regexp`](https://www.npmjs.com/package/path-to-regexp) to compute
 a `RegExp`, which is then used to math every request: it is signficantly slower.
 
+## Middlewares alternatives
+
+Fastify offers some alternatives to the most commonly used middlewares, following, you can find a list.
+
+| Express Middleware | Fastify Plugin |
+| ------------- |---------------|
+| [`helmet`](https://github.com/helmetjs/helmet) | [`fastify-helmet`](https://github.com/fastify/fastify-helmet) |
+| [`cors`](https://github.com/expressjs/cors) | [`fastify-cors`](https://github.com/fastify/fastify-cors) |
+| [`serve-static`](https://github.com/expressjs/serve-static) | [`fastify-static`](https://github.com/fastify/fastify-static) |
+
 ## Acknowledgements
 
 This project is kindly sponsored by:
 - [nearForm](http://nearform.com)
-- [LetzDoIt](http://www.letzdoitapp.com/)
 
+Past sponsors:
+- [LetzDoIt](http://www.letzdoitapp.com/)
 
 ## License
 
