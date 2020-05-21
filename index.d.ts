@@ -1,5 +1,8 @@
 import {FastifyPlugin} from 'fastify'
 
-declare const middlePlugin: FastifyPlugin
+// Middie doesn't have options yet
+export interface MiddiePluginOptions {
+}
 
-export = middlePlugin
+declare const middiePlugin: FastifyPlugin<MiddiePluginOptions>;
+export default middiePlugin;
