@@ -5,7 +5,7 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "test": "standard && tap --no-coverage test/*.test.js",
+    "test": "standard && tap --no-coverage test/*.test.js && tsd",
     "coverage": "tap --cov --coverage-report=html test.js"
   },
   "keywords": [
@@ -38,7 +38,9 @@
     "serve-static": "^1.14.1",
     "simple-get": "^3.1.0",
     "standard": "^14.3.1",
-    "tap": "^14.10.5"
+    "tap": "^14.10.5",
+    "tsd": "^0.11.0",
+    "typescript": "3.9.3"
   },
   "dependencies": {
     "fastify-plugin": "^2.0.0",
@@ -47,5 +49,8 @@
   },
   "engines": {
     "node": ">=10.0.0"
+  },
+  "tsd": {
+    "directory": "test"
   }
 }
