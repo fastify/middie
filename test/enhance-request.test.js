@@ -13,7 +13,7 @@ test('Should enhance the Node.js core request/response objects', t => {
   t.teardown(fastify.close)
 
   fastify.register(middiePlugin)
-    .after(() => fastify.use(cors()))
+    .after(() => { fastify.use(cors()) })
 
   fastify.get('/', async (req, reply) => {
     t.strictEqual(req.raw.originalUrl, req.raw.url)
