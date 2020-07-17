@@ -41,7 +41,7 @@
     "standard": "^14.3.1",
     "tap": "^14.10.5",
     "tsd": "^0.13.1",
-    "typescript": "3.9.6"
+    "typescript": "3.9.7"
   },
   "dependencies": {
     "fastify-plugin": "^2.0.0",
