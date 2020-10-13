@@ -6,3 +6,7 @@ const app = fastify();
 app.register(middiePlugin);
 
 expectAssignable<MiddiePluginOptions>({})
+
+app.use('/', (_req, _res, next) => {
+  next()
+})
