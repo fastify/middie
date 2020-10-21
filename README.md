@@ -187,7 +187,11 @@ middie.use(['/public', '/dist'], [cors(), staticFiles('/assets')])
 ```
 
 To guarantee compatibility with Express, adding a prefix uses [`path-to-regexp`](https://www.npmjs.com/package/path-to-regexp) to compute
-a `RegExp`, which is then used to math every request: it is signficantly slower.
+a `RegExp`, which is then used to math every request: it is significantly slower.
+
+## TypeScript support
+
+To use this module with TypeScript, make sure to install `@types/connect`.
 
 ## Middlewares alternatives
 
