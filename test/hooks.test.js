@@ -18,8 +18,8 @@ test('onSend hook should receive valid request and reply objects if middleware f
   fastify.decorateReply('testDecorator', 'testDecoratorVal')
 
   fastify.addHook('onSend', function (request, reply, payload, next) {
-    t.strictEqual(request.testDecorator, 'testDecoratorVal')
-    t.strictEqual(reply.testDecorator, 'testDecoratorVal')
+    t.equal(request.testDecorator, 'testDecoratorVal')
+    t.equal(reply.testDecorator, 'testDecoratorVal')
     next()
   })
 
@@ -32,6 +32,6 @@ test('onSend hook should receive valid request and reply objects if middleware f
     url: '/'
   }, (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 500)
+    t.equal(res.statusCode, 500)
   })
 })

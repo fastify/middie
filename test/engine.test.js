@@ -57,13 +57,13 @@ test('use two functions', t => {
     url: '/test'
   }
   const res = {}
-  var counter = 0
+  let counter = 0
 
   instance.use(function (req, res, next) {
-    t.is(counter++, 0, 'first function called')
+    t.equal(counter++, 0, 'first function called')
     next()
   }).use(function (req, res, next) {
-    t.is(counter++, 1, 'second function called')
+    t.equal(counter++, 1, 'second function called')
     next()
   })
 
@@ -362,7 +362,7 @@ test('basic serve static', t => {
 
   server.listen(0, function () {
     http.get(`http://localhost:${server.address().port}/README.md`, function (res) {
-      t.is(res.statusCode, 200)
+      t.equal(res.statusCode, 200)
       res.resume()
       server.close()
       server.unref()
@@ -380,11 +380,11 @@ test('limit serve static to a specific folder', t => {
   })
   instance.use('/assets', serveStatic(join(__dirname, '..')))
   const server = http.createServer(instance.run.bind(instance))
-  var req
+  let req
 
   server.listen(0, function () {
     req = http.get(`http://localhost:${server.address().port}/assets/README.md`, function (res) {
-      t.is(res.statusCode, 200)
+      t.equal(res.statusCode, 200)
       res.resume()
       server.close()
       server.unref()
@@ -397,7 +397,7 @@ test('should match all chain', t => {
   t.plan(2)
   const instance = middie(function (err, req, res) {
     t.error(err)
-    t.deepEqual(req, {
+    t.same(req, {
       url: '/inner/in/depth',
       originalUrl: '/inner/in/depth',
       undefined: true,
@@ -444,7 +444,7 @@ test('should match the same slashed path', t => {
   t.plan(3)
   const instance = middie(function (err, req, res) {
     t.error(err)
-    t.deepEqual(req, {
+    t.same(req, {
       url: '/path',
       originalUrl: '/path'
     })

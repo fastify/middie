@@ -4,8 +4,8 @@ const reusify = require('reusify')
 const { pathToRegexp } = require('path-to-regexp')
 
 function middie (complete) {
-  var middlewares = []
-  var pool = reusify(Holder)
+  const middlewares = []
+  const pool = reusify(Holder)
 
   return {
     use,
@@ -18,7 +18,7 @@ function middie (complete) {
       url = null
     }
 
-    var regexp
+    let regexp
     if (url) {
       regexp = pathToRegexp(sanitizePrefixUrl(url), [], {
         end: false,
@@ -27,7 +27,7 @@ function middie (complete) {
     }
 
     if (Array.isArray(f)) {
-      for (var val of f) {
+      for (const val of f) {
         middlewares.push({
           regexp,
           fn: val
@@ -51,7 +51,7 @@ function middie (complete) {
 
     req.originalUrl = req.url
 
-    var holder = pool.get()
+    const holder = pool.get()
     holder.req = req
     holder.res = res
     holder.url = sanitizeUrl(req.url)
@@ -67,13 +67,13 @@ function middie (complete) {
     this.context = null
     this.i = 0
 
-    var that = this
+    const that = this
     this.done = function (err) {
-      var req = that.req
-      var res = that.res
-      var url = that.url
-      var context = that.context
-      var i = that.i++
+      const req = that.req
+      const res = that.res
+      const url = that.url
+      const context = that.context
+      const i = that.i++
 
       req.url = req.originalUrl
 
@@ -94,11 +94,11 @@ function middie (complete) {
         that.i = 0
         pool.release(that)
       } else {
-        var middleware = middlewares[i]
-        var fn = middleware.fn
-        var regexp = middleware.regexp
+        const middleware = middlewares[i]
+        const fn = middleware.fn
+        const regexp = middleware.regexp
         if (regexp) {
-          var result = regexp.exec(url)
+          const result = regexp.exec(url)
           if (result) {
             req.url = req.url.replace(result[0], '')
             if (req.url.startsWith('/') === false) {
@@ -117,8 +117,9 @@ function middie (complete) {
 }
 
 function sanitizeUrl (url) {
+  /* eslint-disable-next-line no-var */
   for (var i = 0, len = url.length; i < len; i++) {
-    var charCode = url.charCodeAt(i)
+    const charCode = url.charCodeAt(i)
     if (charCode === 63 || charCode === 35) {
       return url.slice(0, i)
     }

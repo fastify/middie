@@ -34,16 +34,16 @@ test('use a middleware', t => {
   instance.listen(0, err => {
     t.error(err)
 
-    t.tearDown(instance.server.close.bind(instance.server))
+    t.teardown(instance.server.close.bind(instance.server))
 
     sget({
       method: 'GET',
       url: 'http://localhost:' + instance.server.address().port
     }, (err, response, body) => {
       t.error(err)
-      t.strictEqual(response.statusCode, 200)
-      t.strictEqual(response.headers['content-length'], '' + body.length)
-      t.deepEqual(JSON.parse(body), { hello: 'world' })
+      t.equal(response.statusCode, 200)
+      t.equal(response.headers['content-length'], '' + body.length)
+      t.same(JSON.parse(body), { hello: 'world' })
     })
   })
 })
@@ -64,7 +64,7 @@ test('use cors', t => {
   instance.listen(0, err => {
     t.error(err)
 
-    t.tearDown(instance.server.close.bind(instance.server))
+    t.teardown(instance.server.close.bind(instance.server))
 
     sget({
       method: 'GET',
@@ -92,7 +92,7 @@ test('use helmet', t => {
   instance.listen(0, err => {
     t.error(err)
 
-    t.tearDown(instance.server.close.bind(instance.server))
+    t.teardown(instance.server.close.bind(instance.server))
 
     sget({
       method: 'GET',
@@ -121,7 +121,7 @@ test('use helmet and cors', t => {
   instance.listen(0, err => {
     t.error(err)
 
-    t.tearDown(instance.server.close.bind(instance.server))
+    t.teardown(instance.server.close.bind(instance.server))
 
     sget({
       method: 'GET',
@@ -179,7 +179,7 @@ test('middlewares with prefix', t => {
 
   instance.listen(0, err => {
     t.error(err)
-    t.tearDown(instance.server.close.bind(instance.server))
+    t.teardown(instance.server.close.bind(instance.server))
 
     t.test('/', t => {
       t.plan(2)
@@ -189,7 +189,7 @@ test('middlewares with prefix', t => {
         json: true
       }, (err, response, body) => {
         t.error(err)
-        t.deepEqual(body, {
+        t.same(body, {
           global: true,
           global2: true,
           root: true
@@ -205,7 +205,7 @@ test('middlewares with prefix', t => {
         json: true
       }, (err, response, body) => {
         t.error(err)
-        t.deepEqual(body, {
+        t.same(body, {
           prefixed: true,
           global: true,
           global2: true,
@@ -223,7 +223,7 @@ test('middlewares with prefix', t => {
         json: true
       }, (err, response, body) => {
         t.error(err)
-        t.deepEqual(body, {
+        t.same(body, {
           prefixed: true,
           slashed: true,
           global: true,
@@ -241,7 +241,7 @@ test('middlewares with prefix', t => {
         json: true
       }, (err, response, body) => {
         t.error(err)
-        t.deepEqual(body, {
+        t.same(body, {
           prefixed: true,
           slashed: true,
           global: true,
@@ -295,8 +295,8 @@ test('res.end should block middleware execution', t => {
     method: 'GET'
   }, (err, res) => {
     t.error(err)
-    t.is(res.statusCode, 200)
-    t.is(res.payload, 'hello')
+    t.equal(res.statusCode, 200)
+    t.equal(res.payload, 'hello')
   })
 })
 
@@ -345,7 +345,7 @@ test('middlewares should be able to respond with a stream', t => {
     method: 'GET'
   }, (err, res) => {
     t.error(err)
-    t.is(res.statusCode, 200)
+    t.equal(res.statusCode, 200)
   })
 })
 
@@ -378,8 +378,8 @@ test('Use a middleware inside a plugin after an encapsulated plugin', t => {
 
   f.inject('/', (err, res) => {
     t.error(err)
-    t.is(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { hello: 'world' })
+    t.equal(res.statusCode, 200)
+    t.same(JSON.parse(res.payload), { hello: 'world' })
   })
 })
 
@@ -390,14 +390,14 @@ test('middlewares should run in the order in which they are defined', t => {
 
   f.register(fp(function (instance, opts, next) {
     instance.use(function (req, res, next) {
-      t.strictEqual(req.previous, undefined)
+      t.equal(req.previous, undefined)
       req.previous = 1
       next()
     })
 
     instance.register(fp(function (i, opts, next) {
       i.use(function (req, res, next) {
-        t.strictEqual(req.previous, 2)
+        t.equal(req.previous, 2)
         req.previous = 3
         next()
       })
@@ -405,7 +405,7 @@ test('middlewares should run in the order in which they are defined', t => {
     }))
 
     instance.use(function (req, res, next) {
-      t.strictEqual(req.previous, 1)
+      t.equal(req.previous, 1)
       req.previous = 2
       next()
     })
@@ -415,19 +415,19 @@ test('middlewares should run in the order in which they are defined', t => {
 
   f.register(function (instance, opts, next) {
     instance.use(function (req, res, next) {
-      t.strictEqual(req.previous, 3)
+      t.equal(req.previous, 3)
       req.previous = 4
       next()
     })
 
     instance.get('/', function (request, reply) {
-      t.strictEqual(request.raw.previous, 5)
+      t.equal(request.raw.previous, 5)
       reply.send({ hello: 'world' })
     })
 
     instance.register(fp(function (i, opts, next) {
       i.use(function (req, res, next) {
-        t.strictEqual(req.previous, 4)
+        t.equal(req.previous, 4)
         req.previous = 5
         next()
       })
@@ -439,7 +439,7 @@ test('middlewares should run in the order in which they are defined', t => {
 
   f.inject('/', (err, res) => {
     t.error(err)
-    t.strictEqual(res.statusCode, 200)
-    t.deepEqual(JSON.parse(res.payload), { hello: 'world' })
+    t.equal(res.statusCode, 200)
+    t.same(JSON.parse(res.payload), { hello: 'world' })
   })
 })

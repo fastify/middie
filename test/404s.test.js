@@ -44,7 +44,7 @@ test('run hooks and middleware on default 404', t => {
     reply.send({ hello: 'world' })
   })
 
-  t.tearDown(fastify.close.bind(fastify))
+  t.teardown(fastify.close.bind(fastify))
 
   fastify.listen(0, err => {
     t.error(err)
@@ -56,7 +56,7 @@ test('run hooks and middleware on default 404', t => {
       headers: { 'Content-Type': 'application/json' }
     }, (err, response, body) => {
       t.error(err)
-      t.strictEqual(response.statusCode, 404)
+      t.equal(response.statusCode, 404)
     })
   })
 })
@@ -110,7 +110,7 @@ test('run non-encapsulated plugin hooks and middleware on default 404', t => {
       headers: { 'Content-Type': 'application/json' }
     }, (err, response, body) => {
       t.error(err)
-      t.strictEqual(response.statusCode, 404)
+      t.equal(response.statusCode, 404)
     })
   })
 })
@@ -170,8 +170,8 @@ test('run non-encapsulated plugin hooks and middleware on custom 404', t => {
       url: address + '/not-found'
     }, (err, response, body) => {
       t.error(err)
-      t.strictEqual(body.toString(), 'this was not found')
-      t.strictEqual(response.statusCode, 404)
+      t.equal(body.toString(), 'this was not found')
+      t.equal(response.statusCode, 404)
     })
   })
 })
@@ -243,7 +243,7 @@ test('run hooks and middleware with encapsulated 404', t => {
     next()
   }, { prefix: '/test' })
 
-  t.tearDown(fastify.close.bind(fastify))
+  t.teardown(fastify.close.bind(fastify))
 
   fastify.listen(0, err => {
     t.error(err)
@@ -255,7 +255,7 @@ test('run hooks and middleware with encapsulated 404', t => {
       headers: { 'Content-Type': 'application/json' }
     }, (err, response, body) => {
       t.error(err)
-      t.strictEqual(response.statusCode, 404)
+      t.equal(response.statusCode, 404)
     })
   })
 })
@@ -277,7 +277,7 @@ test('run middlewares on default 404', t => {
     reply.send({ hello: 'world' })
   })
 
-  t.tearDown(fastify.close.bind(fastify))
+  t.teardown(fastify.close.bind(fastify))
 
   fastify.listen(0, err => {
     t.error(err)
@@ -289,7 +289,7 @@ test('run middlewares on default 404', t => {
       headers: { 'Content-Type': 'application/json' }
     }, (err, response, body) => {
       t.error(err)
-      t.strictEqual(response.statusCode, 404)
+      t.equal(response.statusCode, 404)
     })
   })
 })
@@ -320,7 +320,7 @@ test('run middlewares with encapsulated 404', t => {
     next()
   }, { prefix: '/test' })
 
-  t.tearDown(fastify.close.bind(fastify))
+  t.teardown(fastify.close.bind(fastify))
 
   fastify.listen(0, err => {
     t.error(err)
@@ -332,7 +332,7 @@ test('run middlewares with encapsulated 404', t => {
       headers: { 'Content-Type': 'application/json' }
     }, (err, response, body) => {
       t.error(err)
-      t.strictEqual(response.statusCode, 404)
+      t.equal(response.statusCode, 404)
     })
   })
 })
