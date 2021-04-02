@@ -16,11 +16,11 @@ test('Should enhance the Node.js core request/response objects', t => {
     .after(() => { fastify.use(cors()) })
 
   fastify.get('/', async (req, reply) => {
-    t.strictEqual(req.raw.originalUrl, req.raw.url)
-    t.strictEqual(req.raw.id, req.id)
-    t.strictEqual(req.raw.hostname, req.hostname)
-    t.strictEqual(req.raw.ip, req.ip)
-    t.deepEqual(req.raw.ips, req.ips)
+    t.equal(req.raw.originalUrl, req.raw.url)
+    t.equal(req.raw.id, req.id)
+    t.equal(req.raw.hostname, req.hostname)
+    t.equal(req.raw.ip, req.ip)
+    t.same(req.raw.ips, req.ips)
     t.ok(req.raw.log)
     t.ok(reply.raw.log)
     return { hello: 'world' }
@@ -45,11 +45,11 @@ test('Should not enhance the Node.js core request/response objects when there ar
   fastify.register(middiePlugin)
 
   fastify.get('/', async (req, reply) => {
-    t.strictEqual(req.raw.originalUrl, undefined)
-    t.strictEqual(req.raw.id, undefined)
-    t.strictEqual(req.raw.hostname, undefined)
-    t.strictEqual(req.raw.ip, undefined)
-    t.strictEqual(req.raw.ips, undefined)
+    t.equal(req.raw.originalUrl, undefined)
+    t.equal(req.raw.id, undefined)
+    t.equal(req.raw.hostname, undefined)
+    t.equal(req.raw.ip, undefined)
+    t.equal(req.raw.ips, undefined)
     t.notOk(req.raw.log)
     t.notOk(reply.raw.log)
     return { hello: 'world' }

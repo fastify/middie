@@ -30,7 +30,7 @@ test('Should support connect style middlewares', t => {
       t.match(res.headers, {
         'access-control-allow-origin': '*'
       })
-      t.deepEqual(JSON.parse(data), { hello: 'world' })
+      t.same(JSON.parse(data), { hello: 'world' })
     })
   })
 })
@@ -57,7 +57,7 @@ test('Should support connect style middlewares (async await)', async t => {
       t.match(res.headers, {
         'access-control-allow-origin': '*'
       })
-      t.deepEqual(JSON.parse(data), { hello: 'world' })
+      t.same(JSON.parse(data), { hello: 'world' })
       resolve()
     })
   })
@@ -86,7 +86,7 @@ test('Should support connect style middlewares (async await after)', async t => 
       t.match(res.headers, {
         'access-control-allow-origin': '*'
       })
-      t.deepEqual(JSON.parse(data), { hello: 'world' })
+      t.same(JSON.parse(data), { hello: 'world' })
       resolve()
     })
   })
@@ -426,17 +426,17 @@ test('Middleware chain', t => {
   })
 
   function middleware1 (req, res, next) {
-    t.strictEqual(order.shift(), 1)
+    t.equal(order.shift(), 1)
     next()
   }
 
   function middleware2 (req, res, next) {
-    t.strictEqual(order.shift(), 2)
+    t.equal(order.shift(), 2)
     next()
   }
 
   function middleware3 (req, res, next) {
-    t.strictEqual(order.shift(), 3)
+    t.equal(order.shift(), 3)
     next()
   }
 })
@@ -466,7 +466,7 @@ test('Middleware chain (with errors) / 1', t => {
       url: address
     }, (err, res, data) => {
       t.error(err)
-      t.strictEqual(res.statusCode, 500)
+      t.equal(res.statusCode, 500)
       fastify.close()
     })
   })
@@ -490,7 +490,7 @@ test('Middleware chain (with errors) / 2', t => {
   const fastify = Fastify()
 
   fastify.setErrorHandler((err, req, reply) => {
-    t.is(err.message, 'middleware2')
+    t.equal(err.message, 'middleware2')
     reply.send(err)
   })
 
@@ -514,7 +514,7 @@ test('Middleware chain (with errors) / 2', t => {
       url: address
     }, (err, res, data) => {
       t.error(err)
-      t.strictEqual(res.statusCode, 500)
+      t.equal(res.statusCode, 500)
       fastify.close()
     })
   })
@@ -579,7 +579,7 @@ test('Send a response from a middleware', t => {
       json: true
     }, (err, res, data) => {
       t.error(err)
-      t.deepEqual(data, { hello: 'world' })
+      t.same(data, { hello: 'world' })
       fastify.close()
     })
   })
@@ -620,8 +620,8 @@ test('Should support plugin level prefix', t => {
       url: address + '/hello/world'
     }, (err, res, data) => {
       t.error(err)
-      t.strictEqual(res.headers['x-foo'], 'bar')
-      t.deepEqual(JSON.parse(data), { hello: 'world' })
+      t.equal(res.headers['x-foo'], 'bar')
+      t.same(JSON.parse(data), { hello: 'world' })
     })
   })
 })
