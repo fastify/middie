@@ -5,8 +5,8 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "test": "standard && tap --no-coverage test/*.test.js && tsd",
-    "coverage": "tap --cov --coverage-report=html test.js"
+    "coverage": "tap --cov --coverage-report=html test.js",
+    "test": "standard && tap --no-coverage test/*.test.js && tsd"
   },
   "keywords": [
     "fastify",
