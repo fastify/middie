@@ -1,8 +1,11 @@
 # middie
 
-[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/) ![CI workflow](https://github.com/fastify/middie/workflows/CI%20workflow/badge.svg)
+![CI](https://github.com/fastify/middie/workflows/CI/badge.svg)
+[![NPM version](https://img.shields.io/npm/v/middie.svg?style=flat)](https://www.npmjs.com/package/middie)
+[![Known Vulnerabilities](https://snyk.io/test/github/fastify/middie/badge.svg)](https://snyk.io/test/github/fastify/middie)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://standardjs.com/)
 
-*middie* is the plugin that add middlewares support on steroids to [Fastify](https://www.npmjs.com/package/fastify).
+*middie* is the plugin that adds middleware support on steroids to [Fastify](https://www.npmjs.com/package/fastify).
 
 The syntax style is the same as [express](http://npm.im/express)/[connect](https://www.npmjs.com/package/connect).
 Does not support the full syntax `middleware(err, req, res, next)`, because error handling is done inside Fastify.
@@ -14,7 +17,7 @@ npm install middie
 ```
 
 ## Usage
-Register the plugin and start using your middlewares.
+Register the plugin and start using your middleware.
 ```js
 const Fastify = require('fastify')
 
@@ -61,7 +64,7 @@ async function subsystem (fastify, opts) {
 }
 ```
 
-### Hooks and middlewares
+### Hooks and middleware
 
 Every registered middleware will be run during the `onRequest` hook phase, so the registration order is important.  
 Take a look at the [Lifecycle](https://www.fastify.io/docs/latest/Lifecycle/) documentation page to understand better how every request is executed.
@@ -193,9 +196,9 @@ a `RegExp`, which is then used to math every request: it is significantly slower
 
 To use this module with TypeScript, make sure to install `@types/connect`.
 
-## Middlewares alternatives
+## Middleware alternatives
 
-Fastify offers some alternatives to the most commonly used middlewares, following, you can find a list.
+Fastify offers some alternatives to the most commonly used Express middleware:
 
 | Express Middleware | Fastify Plugin |
 | ------------- |---------------|
@@ -206,10 +209,10 @@ Fastify offers some alternatives to the most commonly used middlewares, followin
 ## Acknowledgements
 
 This project is kindly sponsored by:
-- [nearForm](http://nearform.com)
+- [nearForm](https://nearform.com)
 
 Past sponsors:
-- [LetzDoIt](http://www.letzdoitapp.com/)
+- [LetzDoIt](https://www.letzdoitapp.com/)
 
 ## License
 
