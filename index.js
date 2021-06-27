@@ -7,10 +7,7 @@ const kMiddlewares = Symbol('fastify-middie-middlewares')
 const kMiddie = Symbol('fastify-middie-instance')
 
 function middiePlugin (fastify, options, next) {
-  // TODO: we should use decorate, but `use` is already
-  // a public API of Fastify. In Fastify v3 it will be deprecated,
-  // so we will able to use `decorate`
-  fastify.use = use
+  fastify.decorate('use', use)
   fastify[kMiddlewares] = []
   fastify[kMiddie] = Middie(onMiddieEnd)
 
@@ -55,7 +52,7 @@ function middiePlugin (fastify, options, next) {
     const middlewares = instance[kMiddlewares].slice()
     instance[kMiddlewares] = []
     instance[kMiddie] = Middie(onMiddieEnd)
-    instance.use = use
+    instance.decorate('use', use)
     for (const middleware of middlewares) {
       instance.use(...middleware)
     }
