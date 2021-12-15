@@ -49,6 +49,9 @@
     "path-to-regexp": "^6.1.0",
     "reusify": "^1.0.4"
   },
+  "peerDependencies": {
+    "fastify": "3.x"
+  },
   "engines": {
     "node": ">=10.0.0"
   },
