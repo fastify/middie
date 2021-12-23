@@ -625,3 +625,31 @@ test('Should support plugin level prefix', t => {
     })
   })
 })
+
+test('register the middleware at a different hook', async t => {
+  const fastify = Fastify()
+  t.teardown(fastify.close)
+
+  let onRequestCalled = false
+
+  await fastify.register(middiePlugin, {
+    hook: 'preHandler'
+  })
+
+  fastify.use(function (req, res, next) {
+    t.ok(onRequestCalled)
+    next()
+  })
+
+  fastify.addHook('onRequest', function (req, reply, next) {
+    onRequestCalled = true
+    next()
+  })
+
+  fastify.get('/', async (req, reply) => {
+    return { hello: 'world' }
+  })
+
+  const res = await fastify.inject('/')
+  t.same(res.json(), { hello: 'world' })
+})

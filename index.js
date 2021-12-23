@@ -12,7 +12,7 @@ function middiePlugin (fastify, options, next) {
   fastify[kMiddie] = Middie(onMiddieEnd)
 
   fastify
-    .addHook('onRequest', runMiddie)
+    .addHook(options.hook || 'onRequest', runMiddie)
     .addHook('onRegister', onRegister)
 
   function use (path, fn) {
