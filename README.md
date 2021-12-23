@@ -23,7 +23,9 @@ const Fastify = require('fastify')
 
 async function build () {
   const fastify = Fastify()
-  await fastify.register(require('middie'))
+  await fastify.register(require('middie'), {
+    hook: 'onRequest' // default
+  })
   // do you know we also have cors support?
   // https://github.com/fastify/fastify-cors
   fastify.use(require('cors')())
@@ -66,7 +68,7 @@ async function subsystem (fastify, opts) {
 
 ### Hooks and middleware
 
-Every registered middleware will be run during the `onRequest` hook phase, so the registration order is important.  
+__Every registered middleware will be run during the `onRequest` hook phase__, so the registration order is important.
 Take a look at the [Lifecycle](https://www.fastify.io/docs/latest/Lifecycle/) documentation page to understand better how every request is executed.
 
 ```js
@@ -88,6 +90,35 @@ async function subsystem (fastify, opts) {
 
   fastify.addHook('onRequest', async (req, reply) => {
     console.log('third')
+  })
+}
+```
+
+If you want to change the Fastify hook that the middleware will be attached to, pass a `hook` option like so:
+
+```js
+const fastify = require('fastify')()
+
+fastify
+  .register(require('middie'), { hook: 'preHandler' })
+  .register(subsystem)
+
+async function subsystem (fastify, opts) {
+  fastify.addHook('onRequest', async (req, reply) => {
+    console.log('first')
+  })
+
+  fastify.use((req, res, next) => {
+    console.log('third')
+    next()
+  })
+
+  fastify.addHook('onRequest', async (req, reply) => {
+    console.log('second')
+  })
+
+  fastify.addHook('preHandler', async (req, reply) => {
+    console.log('fourth')
   })
 }
 ```
