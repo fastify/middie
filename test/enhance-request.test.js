@@ -8,19 +8,23 @@ const cors = require('cors')
 const middiePlugin = require('../index')
 
 test('Should enhance the Node.js core request/response objects', t => {
-  t.plan(9)
+  t.plan(13)
   const fastify = Fastify()
   t.teardown(fastify.close)
 
-  fastify.register(middiePlugin)
+  fastify.register(middiePlugin, { hook: 'preHandler' })
     .after(() => { fastify.use(cors()) })
 
-  fastify.get('/', async (req, reply) => {
+  fastify.post('/', async (req, reply) => {
     t.equal(req.raw.originalUrl, req.raw.url)
     t.equal(req.raw.id, req.id)
     t.equal(req.raw.hostname, req.hostname)
     t.equal(req.raw.ip, req.ip)
     t.same(req.raw.ips, req.ips)
+    t.same(req.raw.body, req.body)
+    t.same(req.raw.query, req.query)
+    t.ok(req.raw.body.bar)
+    t.ok(req.raw.query.foo)
     t.ok(req.raw.log)
     t.ok(reply.raw.log)
     return { hello: 'world' }
@@ -29,8 +33,10 @@ test('Should enhance the Node.js core request/response objects', t => {
   fastify.listen(0, (err, address) => {
     t.error(err)
     sget({
-      method: 'GET',
-      url: address
+      method: 'POST',
+      url: `${address}?foo=bar`,
+      body: { bar: 'foo' },
+      json: true
     }, (err, res, data) => {
       t.error(err)
     })
@@ -38,18 +44,20 @@ test('Should enhance the Node.js core request/response objects', t => {
 })
 
 test('Should not enhance the Node.js core request/response objects when there are no middlewares', t => {
-  t.plan(9)
+  t.plan(11)
   const fastify = Fastify()
   t.teardown(fastify.close)
 
-  fastify.register(middiePlugin)
+  fastify.register(middiePlugin, { hook: 'preHandler' })
 
-  fastify.get('/', async (req, reply) => {
+  fastify.post('/', async (req, reply) => {
     t.equal(req.raw.originalUrl, undefined)
     t.equal(req.raw.id, undefined)
     t.equal(req.raw.hostname, undefined)
     t.equal(req.raw.ip, undefined)
     t.equal(req.raw.ips, undefined)
+    t.same(req.raw.body, undefined)
+    t.same(req.raw.query, undefined)
     t.notOk(req.raw.log)
     t.notOk(reply.raw.log)
     return { hello: 'world' }
@@ -58,8 +66,10 @@ test('Should not enhance the Node.js core request/response objects when there ar
   fastify.listen(0, (err, address) => {
     t.error(err)
     sget({
-      method: 'GET',
-      url: address
+      method: 'POST',
+      url: `${address}?foo=bar`,
+      body: { bar: 'foo' },
+      json: true
     }, (err, res, data) => {
       t.error(err)
     })
