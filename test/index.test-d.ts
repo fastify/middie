@@ -12,7 +12,7 @@ expectAssignable<IncomingMessageExtended>({})
 
 app.use('/', (_req, _res, next) => {
   expectType<any | undefined>(_req.body)
-  expectType<any | undefined>(_req.body)
+  expectType<any | undefined>(_req.query)
 
   next()
 })
