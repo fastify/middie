@@ -96,7 +96,7 @@ async function subsystem (fastify, opts) {
 
 If you want to change the Fastify hook that the middleware will be attached to, pass a `hook` option like so:
 
-*Note you can access `req.body` from the `preValidation` lifecycle step onwards. The lifecycle order is available in the (Fastify documentation)[https://www.fastify.io/docs/latest/Reference/Hooks/]*
+*Note you can access `req.body` from the `preValidation` lifecycle step onwards. Take a look at the [Lifecycle](https://www.fastify.io/docs/latest/Lifecycle/) documentation page to see the order of the steps.*
 
 ```js
 const fastify = require('fastify')()
