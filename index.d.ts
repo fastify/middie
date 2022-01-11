@@ -21,8 +21,8 @@ declare module "fastify" {
   }
 }
 
-// Middie doesn't have options yet
 export interface MiddiePluginOptions {
+  hook?: 'onRequest' | 'preParsing' | 'preValidation' | 'preHandler' | 'preSerialization' | 'onSend' | 'onResponse' | 'onTimeout' | 'onError';
 }
 
 declare const middiePlugin: FastifyPluginCallback<MiddiePluginOptions>

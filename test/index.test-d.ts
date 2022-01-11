@@ -6,6 +6,7 @@ const app = fastify();
 app.register(middiePlugin);
 
 expectAssignable<MiddiePluginOptions>({})
+expectAssignable<MiddiePluginOptions>({ hook: 'preHandler' })
 
 expectAssignable<IncomingMessageExtended>({ body: { foo: 'bar' }, query: { bar: 'foo' }})
 expectAssignable<IncomingMessageExtended>({})
