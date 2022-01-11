@@ -7,6 +7,8 @@ app.register(middiePlugin);
 
 expectAssignable<MiddiePluginOptions>({})
 
+expectAssignable<MiddiePluginOptions>({ hook: 'preHandler' })
+
 app.use('/', (_req, _res, next) => {
   next()
 })
