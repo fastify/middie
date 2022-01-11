@@ -2,7 +2,7 @@ import * as connect from 'connect'
 import {FastifyPluginCallback} from 'fastify'
 import * as http from "http";
 
-interface IncomingMessageExtended {
+export interface IncomingMessageExtended {
   body?: any;
   query?: any;
 }
