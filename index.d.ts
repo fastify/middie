@@ -1,5 +1,15 @@
-import {NextHandleFunction, SimpleHandleFunction} from 'connect'
+import * as connect from 'connect'
 import {FastifyPluginCallback} from 'fastify'
+import * as http from "http";
+
+interface IncomingMessageExtended {
+  body?: any;
+  query?: any;
+}
+
+type NextFunction = (err?: any) => void;
+type SimpleHandleFunction = (req: http.IncomingMessage & IncomingMessageExtended, res: http.ServerResponse) => void;
+type NextHandleFunction = (req: connect.IncomingMessage & IncomingMessageExtended, res: http.ServerResponse, next: NextFunction) => void;
 
 type Handler = SimpleHandleFunction | NextHandleFunction
 
