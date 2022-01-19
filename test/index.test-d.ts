@@ -1,14 +1,18 @@
 import fastify from "fastify";
-import middiePlugin, {MiddiePluginOptions} from "..";
-import { expectAssignable } from "tsd";
+import middiePlugin, {MiddiePluginOptions, IncomingMessageExtended} from "..";
+import { expectAssignable, expectType } from "tsd";
 
 const app = fastify();
 app.register(middiePlugin);
 
 expectAssignable<MiddiePluginOptions>({})
 
-expectAssignable<MiddiePluginOptions>({ hook: 'preHandler' })
+expectAssignable<IncomingMessageExtended>({ body: { foo: 'bar' }, query: { bar: 'foo' }})
+expectAssignable<IncomingMessageExtended>({})
 
 app.use('/', (_req, _res, next) => {
+  expectType<any | undefined>(_req.body)
+  expectType<any | undefined>(_req.query)
+
   next()
 })

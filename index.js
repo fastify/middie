@@ -37,6 +37,8 @@ function middiePlugin (fastify, options, next) {
       req.raw.ip = req.ip
       req.raw.ips = req.ips
       req.raw.log = req.log
+      req.raw.body = req.body
+      req.raw.query = req.query
       reply.raw.log = req.log
       this[kMiddie].run(req.raw, reply.raw, next)
     } else {
