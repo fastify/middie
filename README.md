@@ -69,7 +69,7 @@ async function subsystem (fastify, opts) {
 ### Hooks and middleware
 
 __Every registered middleware will be run during the `onRequest` hook phase__, so the registration order is important.
-Take a look at the [Lifecycle](https://www.fastify.io/docs/latest/Lifecycle/) documentation page to understand better how every request is executed.
+Take a look at the [Lifecycle](https://www.fastify.io/docs/latest/Reference/Lifecycle/) documentation page to understand better how every request is executed.
 
 ```js
 const fastify = require('fastify')()
@@ -96,7 +96,7 @@ async function subsystem (fastify, opts) {
 
 If you want to change the Fastify hook that the middleware will be attached to, pass a `hook` option like so:
 
-*Note you can access `req.body` from the `preValidation` lifecycle step onwards. Take a look at the [Lifecycle](https://www.fastify.io/docs/latest/Lifecycle/) documentation page to see the order of the steps.*
+*Note you can access `req.body` from the `preValidation` lifecycle step onwards. Take a look at the [Lifecycle](https://www.fastify.io/docs/latest/Reference/Lifecycle/) documentation page to see the order of the steps.*
 
 ```js
 const fastify = require('fastify')()
