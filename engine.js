@@ -77,7 +77,7 @@ function middie (complete) {
 
       req.url = req.originalUrl
 
-      if (res.finished === true) {
+      if (res.finished === true || res.writableEnded === true) {
         that.req = null
         that.res = null
         that.context = null
