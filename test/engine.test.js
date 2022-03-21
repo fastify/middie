@@ -467,7 +467,7 @@ test('should match the same slashed path', t => {
   instance.run(req, res)
 })
 
-test('if the function calls res.end the iterator should stop', t => {
+test('if the function calls res.end the iterator should stop / 1 (with deprecated finished flag)', t => {
   t.plan(1)
 
   const instance = middie(function () {
@@ -487,6 +487,28 @@ test('if the function calls res.end the iterator should stop', t => {
   instance
     .use(function (req, res, next) {
       res.end('hello')
+      next()
+    })
+    .use(function (req, res, next) {
+      t.fail('we should not be here')
+    })
+
+  instance.run(req, res)
+})
+
+test('if the function calls res.end the iterator should stop / 2', t => {
+  t.plan(0)
+
+  const instance = middie(function () {
+    t.fail('we should not be here')
+  })
+  const req = new http.IncomingMessage(null)
+  req.url = '/test'
+  const res = new http.ServerResponse(req)
+
+  instance
+    .use(function (req, res, next) {
+      res.end('bye')
       next()
     })
     .use(function (req, res, next) {
