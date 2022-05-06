@@ -1,7 +1,6 @@
 'use strict'
 
 const fp = require('fastify-plugin')
-const symbols = require('fastify/lib/symbols')
 const Middie = require('./engine')
 const kMiddlewares = Symbol('fastify-middie-middlewares')
 const kMiddie = Symbol('fastify-middie-instance')
@@ -17,7 +16,7 @@ function middiePlugin (fastify, options, next) {
 
   function use (path, fn) {
     if (typeof path === 'string') {
-      const prefix = this[symbols.kRoutePrefix]
+      const prefix = this.prefix
       path = prefix + (path === '/' && prefix.length > 0 ? '' : path)
     }
     this[kMiddlewares].push([path, fn])
