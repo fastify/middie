@@ -30,7 +30,7 @@ test('Should enhance the Node.js core request/response objects', t => {
     return { hello: 'world' }
   })
 
-  fastify.listen(0, (err, address) => {
+  fastify.listen({ port: 0 }, (err, address) => {
     t.error(err)
     sget({
       method: 'POST',
@@ -63,7 +63,7 @@ test('Should not enhance the Node.js core request/response objects when there ar
     return { hello: 'world' }
   })
 
-  fastify.listen(0, (err, address) => {
+  fastify.listen({ port: 0 }, (err, address) => {
     t.error(err)
     sget({
       method: 'POST',

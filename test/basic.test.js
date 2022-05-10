@@ -20,7 +20,7 @@ test('Should support connect style middlewares', t => {
     return { hello: 'world' }
   })
 
-  fastify.listen(0, (err, address) => {
+  fastify.listen({ port: 0 }, (err, address) => {
     t.error(err)
     sget({
       method: 'GET',
@@ -47,7 +47,7 @@ test('Should support connect style middlewares (async await)', async t => {
     return { hello: 'world' }
   })
 
-  const address = await fastify.listen(0)
+  const address = await fastify.listen({ port: 0 })
   return new Promise((resolve, reject) => {
     sget({
       method: 'GET',
@@ -76,7 +76,7 @@ test('Should support connect style middlewares (async await after)', async t => 
     return { hello: 'world' }
   })
 
-  const address = await fastify.listen(0)
+  const address = await fastify.listen({ port: 0 })
   return new Promise((resolve, reject) => {
     sget({
       method: 'GET',
@@ -109,7 +109,7 @@ test('Should support per path middlewares', t => {
     return { hello: 'world' }
   })
 
-  fastify.listen(0, (err, address) => {
+  fastify.listen({ port: 0 }, (err, address) => {
     t.error(err)
     sget({
       method: 'GET',
@@ -151,7 +151,7 @@ test('Encapsulation support / 1', t => {
     reply.send('ok')
   })
 
-  fastify.listen(0, (err, address) => {
+  fastify.listen({ port: 0 }, (err, address) => {
     t.error(err)
     sget({
       method: 'GET',
@@ -187,7 +187,7 @@ test('Encapsulation support / 2', t => {
     reply.send('ok')
   })
 
-  fastify.listen(0, (err, address) => {
+  fastify.listen({ port: 0 }, (err, address) => {
     t.error(err)
     sget({
       method: 'GET',
@@ -225,7 +225,7 @@ test('Encapsulation support / 3', t => {
     reply.send('ok')
   })
 
-  fastify.listen(0, (err, address) => {
+  fastify.listen({ port: 0 }, (err, address) => {
     t.error(err)
     sget({
       method: 'GET',
@@ -274,7 +274,7 @@ test('Encapsulation support / 4', t => {
     reply.send('ok')
   })
 
-  fastify.listen(0, (err, address) => {
+  fastify.listen({ port: 0 }, (err, address) => {
     t.error(err)
     sget({
       method: 'GET',
@@ -343,7 +343,7 @@ test('Encapsulation support / 5', t => {
     reply.send('ok')
   })
 
-  fastify.listen(0, (err, address) => {
+  fastify.listen({ port: 0 }, (err, address) => {
     t.error(err)
     sget({
       method: 'GET',
@@ -414,7 +414,7 @@ test('Middleware chain', t => {
     return { hello: 'world' }
   })
 
-  fastify.listen(0, (err, address) => {
+  fastify.listen({ port: 0 }, (err, address) => {
     t.error(err)
     sget({
       method: 'GET',
@@ -459,7 +459,7 @@ test('Middleware chain (with errors) / 1', t => {
     return { hello: 'world' }
   })
 
-  fastify.listen(0, (err, address) => {
+  fastify.listen({ port: 0 }, (err, address) => {
     t.error(err)
     sget({
       method: 'GET',
@@ -507,7 +507,7 @@ test('Middleware chain (with errors) / 2', t => {
     return { hello: 'world' }
   })
 
-  fastify.listen(0, (err, address) => {
+  fastify.listen({ port: 0 }, (err, address) => {
     t.error(err)
     sget({
       method: 'GET',
@@ -571,7 +571,7 @@ test('Send a response from a middleware', t => {
     t.fail('We should not be here')
   })
 
-  fastify.listen(0, (err, address) => {
+  fastify.listen({ port: 0 }, (err, address) => {
     t.error(err)
     sget({
       method: 'GET',
@@ -613,7 +613,7 @@ test('Should support plugin level prefix', t => {
     next()
   }, { prefix: '/hello' })
 
-  fastify.listen(0, (err, address) => {
+  fastify.listen({ port: 0 }, (err, address) => {
     t.error(err)
     sget({
       method: 'GET',
