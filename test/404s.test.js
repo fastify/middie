@@ -46,7 +46,7 @@ test('run hooks and middleware on default 404', t => {
 
   t.teardown(fastify.close.bind(fastify))
 
-  fastify.listen(0, err => {
+  fastify.listen({ port: 0 }, err => {
     t.error(err)
 
     sget({
@@ -101,7 +101,7 @@ test('run non-encapsulated plugin hooks and middleware on default 404', t => {
     reply.send({ hello: 'world' })
   })
 
-  fastify.listen(0, (err, address) => {
+  fastify.listen({ port: 0 }, (err, address) => {
     t.error(err)
     sget({
       method: 'POST',
@@ -163,7 +163,7 @@ test('run non-encapsulated plugin hooks and middleware on custom 404', t => {
 
   fastify.register(plugin) // Registering plugin after handler also works
 
-  fastify.listen(0, (err, address) => {
+  fastify.listen({ port: 0 }, (err, address) => {
     t.error(err)
     sget({
       method: 'GET',
@@ -245,7 +245,7 @@ test('run hooks and middleware with encapsulated 404', t => {
 
   t.teardown(fastify.close.bind(fastify))
 
-  fastify.listen(0, err => {
+  fastify.listen({ port: 0 }, err => {
     t.error(err)
 
     sget({
@@ -279,7 +279,7 @@ test('run middlewares on default 404', t => {
 
   t.teardown(fastify.close.bind(fastify))
 
-  fastify.listen(0, err => {
+  fastify.listen({ port: 0 }, err => {
     t.error(err)
 
     sget({
@@ -322,7 +322,7 @@ test('run middlewares with encapsulated 404', t => {
 
   t.teardown(fastify.close.bind(fastify))
 
-  fastify.listen(0, err => {
+  fastify.listen({ port: 0 }, err => {
     t.error(err)
 
     sget({

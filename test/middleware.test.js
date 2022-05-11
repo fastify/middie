@@ -31,7 +31,7 @@ test('use a middleware', t => {
     reply.send({ hello: 'world' })
   })
 
-  instance.listen(0, err => {
+  instance.listen({ port: 0 }, err => {
     t.error(err)
 
     t.teardown(instance.server.close.bind(instance.server))
@@ -61,7 +61,7 @@ test('use cors', t => {
     reply.send({ hello: 'world' })
   })
 
-  instance.listen(0, err => {
+  instance.listen({ port: 0 }, err => {
     t.error(err)
 
     t.teardown(instance.server.close.bind(instance.server))
@@ -89,7 +89,7 @@ test('use helmet', t => {
     reply.send({ hello: 'world' })
   })
 
-  instance.listen(0, err => {
+  instance.listen({ port: 0 }, err => {
     t.error(err)
 
     t.teardown(instance.server.close.bind(instance.server))
@@ -118,7 +118,7 @@ test('use helmet and cors', t => {
     reply.send({ hello: 'world' })
   })
 
-  instance.listen(0, err => {
+  instance.listen({ port: 0 }, err => {
     t.error(err)
 
     t.teardown(instance.server.close.bind(instance.server))
@@ -177,7 +177,7 @@ test('middlewares with prefix', t => {
   instance.get('/prefix/', handler)
   instance.get('/prefix/inner', handler)
 
-  instance.listen(0, err => {
+  instance.listen({ port: 0 }, err => {
     t.error(err)
     t.teardown(instance.server.close.bind(instance.server))
 
