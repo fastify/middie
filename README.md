@@ -2,7 +2,6 @@
 
 ![CI](https://github.com/fastify/middie/workflows/CI/badge.svg)
 [![NPM version](https://img.shields.io/npm/v/middie.svg?style=flat)](https://www.npmjs.com/package/middie)
-[![Known Vulnerabilities](https://snyk.io/test/github/fastify/middie/badge.svg)](https://snyk.io/test/github/fastify/middie)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://standardjs.com/)
 
 *middie* is the plugin that adds middleware support on steroids to [Fastify](https://www.npmjs.com/package/fastify).
