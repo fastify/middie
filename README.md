@@ -1,7 +1,7 @@
 # middie
 
 ![CI](https://github.com/fastify/middie/workflows/CI/badge.svg)
-[![NPM version](https://img.shields.io/npm/v/middie.svg?style=flat)](https://www.npmjs.com/package/middie)
+[![NPM version](https://img.shields.io/npm/v/@fastify/middie.svg?style=flat)](https://www.npmjs.com/package/@fastify/middie)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://standardjs.com/)
 
 *middie* is the plugin that adds middleware support on steroids to [Fastify](https://www.npmjs.com/package/fastify).
@@ -22,7 +22,7 @@ const Fastify = require('fastify')
 
 async function build () {
   const fastify = Fastify()
-  await fastify.register(require('middie'), {
+  await fastify.register(require('@fastify/middie'), {
     hook: 'onRequest' // default
   })
   // do you know we also have cors support?
@@ -47,7 +47,7 @@ const fastify = require('fastify')()
 fastify.register(subsystem)
 
 async function subsystem (fastify, opts) {
-  await fastify.register(require('middie'))
+  await fastify.register(require('@fastify/middie'))
   fastify.use(require('cors')())
 }
 ```
@@ -57,7 +57,7 @@ async function subsystem (fastify, opts) {
 const fastify = require('fastify')()
 
 fastify
-  .register(require('middie'))
+  .register(require('@fastify/middie'))
   .register(subsystem)
 
 async function subsystem (fastify, opts) {
@@ -74,7 +74,7 @@ Take a look at the [Lifecycle](https://www.fastify.io/docs/latest/Reference/Life
 const fastify = require('fastify')()
 
 fastify
-  .register(require('middie'))
+  .register(require('@fastify/middie'))
   .register(subsystem)
 
 async function subsystem (fastify, opts) {
@@ -101,7 +101,7 @@ If you want to change the Fastify hook that the middleware will be attached to, 
 const fastify = require('fastify')()
 
 fastify
-  .register(require('middie'), { hook: 'preHandler' })
+  .register(require('@fastify/middie'), { hook: 'preHandler' })
   .register(subsystem)
 
 async function subsystem (fastify, opts) {
@@ -134,7 +134,7 @@ const path = require('path')
 const serveStatic = require('serve-static')
 
 fastify
-  .register(require('middie'))
+  .register(require('@fastify/middie'))
   .register(subsystem)
 
 async function subsystem (fastify, opts) {
