@@ -1,6 +1,6 @@
 {
-  "name": "middie",
-  "version": "7.0.0",
+  "name": "@fastify/middie",
+  "version": "8.0.0",
   "description": "Middleware engine for Fastify",
   "main": "index.js",
   "types": "index.d.ts",
@@ -51,5 +51,8 @@
   },
   "tsd": {
     "directory": "test"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

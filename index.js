@@ -64,5 +64,5 @@ function middiePlugin (fastify, options, next) {
 
 module.exports = fp(middiePlugin, {
   fastify: '4.x',
-  name: 'middie'
+  name: '@fastify/middie'
 })
