@@ -1,10 +1,10 @@
-# middie
+# @fastify/middie
 
 ![CI](https://github.com/fastify/middie/workflows/CI/badge.svg)
 [![NPM version](https://img.shields.io/npm/v/@fastify/middie.svg?style=flat)](https://www.npmjs.com/package/@fastify/middie)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](https://standardjs.com/)
 
-*middie* is the plugin that adds middleware support on steroids to [Fastify](https://www.npmjs.com/package/fastify).
+*@fastify/middie* is the plugin that adds middleware support on steroids to [Fastify](https://www.npmjs.com/package/fastify).
 
 The syntax style is the same as [express](http://npm.im/express)/[connect](https://www.npmjs.com/package/connect).
 Does not support the full syntax `middleware(err, req, res, next)`, because error handling is done inside Fastify.
@@ -12,7 +12,7 @@ Does not support the full syntax `middleware(err, req, res, next)`, because erro
 ## Install
 
 ```
-npm install middie
+npm install @fastify/middie
 ```
 
 ## Usage
@@ -155,7 +155,7 @@ You can also use the engine itself without the Fastify plugin system.
 
 ## Usage
 ```js
-const Middie = require('middie/engine')
+const Middie = require('@fastify/middie/engine')
 const http = require('http')
 const helmet = require('helmet')
 const cors = require('cors')
