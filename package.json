@@ -32,7 +32,7 @@
   "homepage": "https://github.com/fastify/middleman#readme",
   "devDependencies": {
     "@types/connect": "^3.4.33",
-    "@types/node": "^17.0.0",
+    "@types/node": "^18.0.0",
     "cors": "^2.8.5",
     "fastify": "^4.0.0-rc.2",
     "helmet": "^5.0.0",
