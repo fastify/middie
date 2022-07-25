@@ -12,7 +12,7 @@ Does not support the full syntax `middleware(err, req, res, next)`, because erro
 ## Install
 
 ```
-npm install @fastify/middie
+npm i @fastify/middie
 ```
 
 ## Usage
