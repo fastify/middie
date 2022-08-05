@@ -32,7 +32,7 @@ async function build () {
 }
 
 build()
-  .then(fastify => fastify.listen(3000))
+  .then(fastify => fastify.listen({ port: 3000 }))
   .catch(console.log)
 ```
 
