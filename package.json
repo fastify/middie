@@ -6,7 +6,11 @@
   "types": "index.d.ts",
   "scripts": {
     "coverage": "tap --cov --coverage-report=html test.js",
-    "test": "standard && tap --no-coverage test/*.test.js && tsd"
+    "lint": "standard",
+    "lint:fix": "standard --fix",
+    "test": "standard && tap test/*.test.js && tsd",
+    "test:unit": "tap",
+    "test:typescript": "tsd"
   },
   "keywords": [
     "fastify",
@@ -53,5 +57,9 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "pre-commit": [
+    "lint",
+    "test"
+  ]
 }
