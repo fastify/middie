@@ -3,7 +3,7 @@
   "version": "8.0.0",
   "description": "Middleware engine for Fastify",
   "main": "index.js",
-  "types": "index.d.ts",
+  "types": "types/index.d.ts",
   "scripts": {
     "coverage": "tap --cov --coverage-report=html test.js",
     "test": "standard && tap --no-coverage test/*.test.js && tsd"
@@ -47,9 +47,6 @@
     "fastify-plugin": "^4.0.0",
     "path-to-regexp": "^6.1.0",
     "reusify": "^1.0.4"
-  },
-  "tsd": {
-    "directory": "test"
   },
   "publishConfig": {
     "access": "public"

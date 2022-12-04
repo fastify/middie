@@ -5,7 +5,7 @@ const Middie = require('./engine')
 const kMiddlewares = Symbol('fastify-middie-middlewares')
 const kMiddie = Symbol('fastify-middie-instance')
 
-function middiePlugin (fastify, options, next) {
+function fastifyMiddie (fastify, options, next) {
   fastify.decorate('use', use)
   fastify[kMiddlewares] = []
   fastify[kMiddie] = Middie(onMiddieEnd)
@@ -62,7 +62,9 @@ function middiePlugin (fastify, options, next) {
   next()
 }
 
-module.exports = fp(middiePlugin, {
+module.exports = fp(fastifyMiddie, {
   fastify: '4.x',
   name: '@fastify/middie'
 })
+module.exports.default = fastifyMiddie
+module.exports.fastifyMiddie = fastifyMiddie
