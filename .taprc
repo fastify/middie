@@ -1,0 +1,4 @@
+coverage: false
+
+files:
+  - test/**/*.test.js
