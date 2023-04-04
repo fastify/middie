@@ -33,6 +33,7 @@ function fastifyMiddie (fastify, options, next) {
       req.raw.originalUrl = req.raw.url
       req.raw.id = req.id
       req.raw.hostname = req.hostname
+      req.raw.protocol = req.protocol
       req.raw.ip = req.ip
       req.raw.ips = req.ips
       req.raw.log = req.log
