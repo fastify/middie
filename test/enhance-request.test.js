@@ -19,6 +19,7 @@ test('Should enhance the Node.js core request/response objects', t => {
     t.equal(req.raw.originalUrl, req.raw.url)
     t.equal(req.raw.id, req.id)
     t.equal(req.raw.hostname, req.hostname)
+    t.equal(req.raw.protocol, req.protocol)
     t.equal(req.raw.ip, req.ip)
     t.same(req.raw.ips, req.ips)
     t.same(req.raw.body, req.body)
