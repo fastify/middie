@@ -7,18 +7,20 @@ const cors = require('cors')
 
 const middiePlugin = require('../index')
 
-test('Should enhance the Node.js core request/response objects', t => {
-  t.plan(13)
+test('Should enhance the Node.js core request/response objects', (t) => {
+  t.plan(14)
   const fastify = Fastify()
   t.teardown(fastify.close)
 
-  fastify.register(middiePlugin, { hook: 'preHandler' })
-    .after(() => { fastify.use(cors()) })
+  fastify.register(middiePlugin, { hook: 'preHandler' }).after(() => {
+    fastify.use(cors())
+  })
 
   fastify.post('/', async (req, reply) => {
     t.equal(req.raw.originalUrl, req.raw.url)
     t.equal(req.raw.id, req.id)
     t.equal(req.raw.hostname, req.hostname)
+    t.equal(req.raw.protocol, req.protocol)
     t.equal(req.raw.ip, req.ip)
     t.same(req.raw.ips, req.ips)
     t.same(req.raw.body, req.body)
@@ -32,18 +34,21 @@ test('Should enhance the Node.js core request/response objects', t => {
 
   fastify.listen({ port: 0 }, (err, address) => {
     t.error(err)
-    sget({
-      method: 'POST',
-      url: `${address}?foo=bar`,
-      body: { bar: 'foo' },
-      json: true
-    }, (err, res, data) => {
-      t.error(err)
-    })
+    sget(
+      {
+        method: 'POST',
+        url: `${address}?foo=bar`,
+        body: { bar: 'foo' },
+        json: true
+      },
+      (err, res, data) => {
+        t.error(err)
+      }
+    )
   })
 })
 
-test('Should not enhance the Node.js core request/response objects when there are no middlewares', t => {
+test('Should not enhance the Node.js core request/response objects when there are no middlewares', (t) => {
   t.plan(11)
   const fastify = Fastify()
   t.teardown(fastify.close)
@@ -65,13 +70,16 @@ test('Should not enhance the Node.js core request/response objects when there ar
 
   fastify.listen({ port: 0 }, (err, address) => {
     t.error(err)
-    sget({
-      method: 'POST',
-      url: `${address}?foo=bar`,
-      body: { bar: 'foo' },
-      json: true
-    }, (err, res, data) => {
-      t.error(err)
-    })
+    sget(
+      {
+        method: 'POST',
+        url: `${address}?foo=bar`,
+        body: { bar: 'foo' },
+        json: true
+      },
+      (err, res, data) => {
+        t.error(err)
+      }
+    )
   })
 })
