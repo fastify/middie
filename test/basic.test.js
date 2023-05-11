@@ -6,6 +6,7 @@ const sget = require('simple-get').concat
 const cors = require('cors')
 
 const middiePlugin = require('../index')
+const { FST_ERR_MIDDIE_INVALID_HOOK } = require('../lib/errors')
 
 test('Should support connect style middlewares', t => {
   t.plan(4)
@@ -626,7 +627,9 @@ test('Should support plugin level prefix', t => {
   })
 })
 
-test('register the middleware at a different hook', async t => {
+test('register the middleware at preHandler hook', async t => {
+  t.plan(2)
+
   const fastify = Fastify()
   t.teardown(fastify.close)
 
@@ -652,4 +655,134 @@ test('register the middleware at a different hook', async t => {
 
   const res = await fastify.inject('/')
   t.same(res.json(), { hello: 'world' })
+})
+
+test('register the middleware at preParsing hook', async t => {
+  t.plan(2)
+
+  const fastify = Fastify()
+  t.teardown(fastify.close)
+
+  let onRequestCalled = false
+
+  await fastify.register(middiePlugin, {
+    hook: 'preParsing'
+  })
+
+  fastify.use(function (req, res, next) {
+    t.ok(onRequestCalled)
+    next()
+  })
+
+  fastify.addHook('onRequest', function (req, reply, next) {
+    onRequestCalled = true
+    next()
+  })
+
+  fastify.get('/', async (req, reply) => {
+    return { hello: 'world' }
+  })
+
+  const res = await fastify.inject('/')
+  t.same(res.json(), { hello: 'world' })
+})
+
+test('register the middleware at preValidation hook', async t => {
+  t.plan(2)
+
+  const fastify = Fastify()
+  t.teardown(fastify.close)
+
+  let onRequestCalled = false
+
+  await fastify.register(middiePlugin, {
+    hook: 'preValidation'
+  })
+
+  fastify.use(function (req, res, next) {
+    t.ok(onRequestCalled)
+    next()
+  })
+
+  fastify.addHook('onRequest', function (req, reply, next) {
+    onRequestCalled = true
+    next()
+  })
+
+  fastify.get('/', async (req, reply) => {
+    return { hello: 'world' }
+  })
+
+  const res = await fastify.inject('/')
+  t.same(res.json(), { hello: 'world' })
+})
+
+test('register the middleware at preSerialization hook', async t => {
+  t.plan(2)
+
+  const fastify = Fastify()
+  t.teardown(fastify.close)
+
+  let onRequestCalled = false
+
+  await fastify.register(middiePlugin, {
+    hook: 'preSerialization'
+  })
+
+  fastify.use(function (req, res, next) {
+    t.ok(onRequestCalled)
+    next()
+  })
+
+  fastify.addHook('onRequest', function (req, reply, next) {
+    onRequestCalled = true
+    next()
+  })
+
+  fastify.get('/', async (req, reply) => {
+    return { hello: 'world' }
+  })
+
+  const res = await fastify.inject('/')
+  t.same(res.json(), { hello: 'world' })
+})
+
+test('register the middleware at onSend hook', async t => {
+  t.plan(2)
+
+  const fastify = Fastify()
+  t.teardown(fastify.close)
+
+  let onRequestCalled = false
+
+  await fastify.register(middiePlugin, {
+    hook: 'onSend'
+  })
+
+  fastify.use(function (req, res, next) {
+    t.ok(onRequestCalled)
+    next()
+  })
+
+  fastify.addHook('onRequest', function (req, reply, next) {
+    onRequestCalled = true
+    next()
+  })
+
+  fastify.get('/', async (req, reply) => {
+    return { hello: 'world' }
+  })
+
+  const res = await fastify.inject('/')
+  t.same(res.json(), { hello: 'world' })
+})
+
+test('throw error when registering middie at onRequestAborted hook', async t => {
+  const fastify = Fastify()
+  t.teardown(fastify.close)
+
+  t.rejects(() => fastify.register(middiePlugin, {
+    hook: 'onRequestAborted'
+  }), new FST_ERR_MIDDIE_INVALID_HOOK('onRequestAborted')
+  )
 })
