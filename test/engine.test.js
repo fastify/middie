@@ -1,6 +1,6 @@
 'use strict'
 
-const middie = require('../engine')
+const middie = require('../lib/engine')
 const t = require('tap')
 const http = require('http')
 const { join } = require('path')

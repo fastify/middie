@@ -1,17 +1,46 @@
 'use strict'
 
 const fp = require('fastify-plugin')
-const Middie = require('./engine')
+const Middie = require('./lib/engine')
 const kMiddlewares = Symbol('fastify-middie-middlewares')
 const kMiddie = Symbol('fastify-middie-instance')
+const kMiddieHasMiddlewares = Symbol('fastify-middie-has-middlewares')
+const { FST_ERR_MIDDIE_INVALID_HOOK } = require('./lib/errors')
+
+const supportedHooksWithPayload = [
+  'onError',
+  'onSend',
+  'preParsing',
+  'preSerialization'
+]
+
+const supportedHooksWithoutPayload = [
+  'onRequest',
+  'onResponse',
+  'onTimeout',
+  'preHandler',
+  'preValidation'
+]
+
+const supportedHooks = [...supportedHooksWithPayload, ...supportedHooksWithoutPayload]
 
 function fastifyMiddie (fastify, options, next) {
   fastify.decorate('use', use)
   fastify[kMiddlewares] = []
+  fastify[kMiddieHasMiddlewares] = false
   fastify[kMiddie] = Middie(onMiddieEnd)
 
+  const hook = options.hook || 'onRequest'
+
+  if (!supportedHooks.includes(hook)) {
+    next(new FST_ERR_MIDDIE_INVALID_HOOK(hook))
+    return
+  }
+
   fastify
-    .addHook(options.hook || 'onRequest', runMiddie)
+    .addHook(hook, supportedHooksWithPayload.includes(hook)
+      ? runMiddieWithPayload
+      : runMiddie)
     .addHook('onRegister', onRegister)
 
   function use (path, fn) {
@@ -25,11 +54,12 @@ function fastifyMiddie (fastify, options, next) {
     } else {
       this[kMiddie].use(path, fn)
     }
+    this[kMiddieHasMiddlewares] = true
     return this
   }
 
   function runMiddie (req, reply, next) {
-    if (this[kMiddlewares].length > 0) {
+    if (this[kMiddieHasMiddlewares]) {
       req.raw.originalUrl = req.raw.url
       req.raw.id = req.id
       req.raw.hostname = req.hostname
@@ -46,6 +76,10 @@ function fastifyMiddie (fastify, options, next) {
     }
   }
 
+  function runMiddieWithPayload (req, reply, _payload, next) {
+    runMiddie.bind(this)(req, reply, next)
+  }
+
   function onMiddieEnd (err, req, res, next) {
     next(err)
   }
@@ -54,6 +88,7 @@ function fastifyMiddie (fastify, options, next) {
     const middlewares = instance[kMiddlewares].slice()
     instance[kMiddlewares] = []
     instance[kMiddie] = Middie(onMiddieEnd)
+    instance[kMiddieHasMiddlewares] = false
     instance.decorate('use', use)
     for (const middleware of middlewares) {
       instance.use(...middleware)
