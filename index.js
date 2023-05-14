@@ -38,7 +38,9 @@ function fastifyMiddie (fastify, options, next) {
   }
 
   fastify
-    .addHook(hook, runMiddieByHook(hook))
+    .addHook(hook, supportedHooksWithPayload.includes(hook)
+      ? runMiddieWithPayload
+      : runMiddie)
     .addHook('onRegister', onRegister)
 
   function use (path, fn) {
@@ -56,46 +58,26 @@ function fastifyMiddie (fastify, options, next) {
     return this
   }
 
-  function runMiddieByHook (hook) {
-    if (
-      supportedHooksWithPayload.includes(hook)
-    ) {
-      return function runMiddie (req, reply, _payload, next) {
-        if (this[kMiddieHasMiddlewares]) {
-          req.raw.originalUrl = req.raw.url
-          req.raw.id = req.id
-          req.raw.hostname = req.hostname
-          req.raw.protocol = req.protocol
-          req.raw.ip = req.ip
-          req.raw.ips = req.ips
-          req.raw.log = req.log
-          req.raw.body = req.body
-          req.raw.query = req.query
-          reply.raw.log = req.log
-          this[kMiddie].run(req.raw, reply.raw, next)
-        } else {
-          next()
-        }
-      }
+  function runMiddie (req, reply, next) {
+    if (this[kMiddieHasMiddlewares]) {
+      req.raw.originalUrl = req.raw.url
+      req.raw.id = req.id
+      req.raw.hostname = req.hostname
+      req.raw.protocol = req.protocol
+      req.raw.ip = req.ip
+      req.raw.ips = req.ips
+      req.raw.log = req.log
+      req.raw.body = req.body
+      req.raw.query = req.query
+      reply.raw.log = req.log
+      this[kMiddie].run(req.raw, reply.raw, next)
     } else {
-      return function runMiddie (req, reply, next) {
-        if (this[kMiddieHasMiddlewares]) {
-          req.raw.originalUrl = req.raw.url
-          req.raw.id = req.id
-          req.raw.hostname = req.hostname
-          req.raw.protocol = req.protocol
-          req.raw.ip = req.ip
-          req.raw.ips = req.ips
-          req.raw.log = req.log
-          req.raw.body = req.body
-          req.raw.query = req.query
-          reply.raw.log = req.log
-          this[kMiddie].run(req.raw, reply.raw, next)
-        } else {
-          next()
-        }
-      }
+      next()
     }
+  }
+
+  function runMiddieWithPayload (req, reply, _payload, next) {
+    runMiddie.bind(this)(req, reply, next)
   }
 
   function onMiddieEnd (err, req, res, next) {
