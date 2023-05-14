@@ -28,12 +28,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fastify/middleman.git"
+    "url": "git+https://github.com/fastify/middie.git"
   },
   "bugs": {
-    "url": "https://github.com/fastify/middleman/issues"
+    "url": "https://github.com/fastify/middie/issues"
   },
-  "homepage": "https://github.com/fastify/middleman#readme",
+  "homepage": "https://github.com/fastify/middie#readme",
   "devDependencies": {
     "@fastify/pre-commit": "^2.0.2",
     "@types/connect": "^3.4.33",
