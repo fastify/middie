@@ -2,8 +2,8 @@
 
 const middie = require('../lib/engine')
 const t = require('tap')
-const http = require('http')
-const { join } = require('path')
+const http = require('node:http')
+const { join } = require('node:path')
 const serveStatic = require('serve-static')
 const test = t.test
 

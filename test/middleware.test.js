@@ -9,7 +9,7 @@ const fastify = require('fastify')
 const fp = require('fastify-plugin')
 const cors = require('cors')
 const helmet = require('helmet')
-const fs = require('fs')
+const fs = require('node:fs')
 
 const middiePlugin = require('../index')
 
