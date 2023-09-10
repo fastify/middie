@@ -141,7 +141,7 @@ If you need to run a middleware only under certain path(s), just pass the path a
 
 ```js
 const fastify = require('fastify')()
-const path = require('path')
+const path = require('node:path')
 const serveStatic = require('serve-static')
 
 fastify
@@ -167,7 +167,7 @@ You can also use the engine itself without the Fastify plugin system.
 ## Usage
 ```js
 const Middie = require('@fastify/middie/engine')
-const http = require('http')
+const http = require('node:http')
 const helmet = require('helmet')
 const cors = require('cors')
 
