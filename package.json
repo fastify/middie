@@ -3,6 +3,7 @@
   "version": "8.3.0",
   "description": "Middleware engine for Fastify",
   "main": "index.js",
+  "type": "commonjs",
   "types": "types/index.d.ts",
   "scripts": {
     "coverage": "tap --cov --coverage-report=html test.js",
