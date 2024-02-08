@@ -68,7 +68,7 @@ async function subsystem (fastify, opts) {
 ### Hooks and middleware
 
 __Every registered middleware will be run during the `onRequest` hook phase__, so the registration order is important.
-Take a look at the [Lifecycle](https://www.fastify.dev/docs/latest/Reference/Lifecycle/) documentation page to understand better how every request is executed.
+Take a look at the [Lifecycle](https://fastify.dev/docs/latest/Reference/Lifecycle/) documentation page to understand better how every request is executed.
 
 ```js
 const fastify = require('fastify')()
