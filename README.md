@@ -160,6 +160,12 @@ async function subsystem (fastify, opts) {
 }
 ```
 
+#### :warning: potential ReDoS attacks
+
+Middie use [`path-to-regexp`](http://npm.im/path-to-regexp) to convert paths to regular expressions.
+This might cause potential [ReDoS](https://en.wikipedia.org/wiki/ReDoS) attacks in your applications if
+certain patterns are used. Use it with care.
+
 # Middie Engine
 
 You can also use the engine itself without the Fastify plugin system.
