@@ -781,7 +781,7 @@ test('throw error when registering middie at onRequestAborted hook', async t => 
   const fastify = Fastify()
   t.teardown(fastify.close)
 
-  t.rejects(() => fastify.register(middiePlugin, {
+  t.rejects(async () => fastify.register(middiePlugin, {
     hook: 'onRequestAborted'
   }), new FST_ERR_MIDDIE_INVALID_HOOK('onRequestAborted')
   )
