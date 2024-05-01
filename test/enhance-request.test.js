@@ -84,7 +84,7 @@ test('Should not enhance the Node.js core request/response objects when there ar
   })
 })
 
-test('If the enhanced response body is undefined, the body key should not be defined', (t) => {
+test('If the enhanced response body is undefined, the body key should not exist', (t) => {
   t.plan(3)
   const fastify = Fastify()
   t.teardown(fastify.close)
