@@ -83,3 +83,30 @@ test('Should not enhance the Node.js core request/response objects when there ar
     )
   })
 })
+
+test('If the enhanced response body is undefined, the body key should not exist', (t) => {
+  t.plan(3)
+  const fastify = Fastify()
+  t.teardown(fastify.close)
+
+  fastify.register(middiePlugin).after(() => {
+    fastify.use(cors())
+    fastify.use((req, res, next) => {
+      t.equal('body' in req, false)
+      next()
+    })
+  })
+
+  fastify.listen({ port: 0 }, (err, address) => {
+    t.error(err)
+    sget(
+      {
+        method: 'POST',
+        url: `${address}?foo=bar`
+      },
+      (err, res, data) => {
+        t.error(err)
+      }
+    )
+  })
+})
