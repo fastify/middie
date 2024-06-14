@@ -27,8 +27,8 @@ declare namespace fastifyMiddie {
     query?: any;
   }
   export type NextFunction = (err?: any) => void;
-  export type SimpleHandleFunction = (req: http.IncomingMessage & IncomingMessageExtended, res: http.ServerResponse) => void;
-  export type NextHandleFunction = (req: connect.IncomingMessage & IncomingMessageExtended, res: http.ServerResponse, next: NextFunction) => void;
+  export type SimpleHandleFunction = (req: http.IncomingMessage & IncomingMessageExtended, res: http.ServerResponse) => void | Promise<void>;
+  export type NextHandleFunction = (req: connect.IncomingMessage & IncomingMessageExtended, res: http.ServerResponse, next: NextFunction) => void | Promise<void>;
   
   export type Handler = SimpleHandleFunction | NextHandleFunction
   
