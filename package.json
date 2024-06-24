@@ -51,7 +51,7 @@
   "dependencies": {
     "@fastify/error": "^4.0.0",
     "fastify-plugin": "^4.5.1",
-    "path-to-regexp": "^6.2.2",
+    "path-to-regexp": "^7.0.0",
     "reusify": "^1.0.4"
   },
   "publishConfig": {
