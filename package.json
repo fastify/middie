@@ -38,7 +38,7 @@
   "devDependencies": {
     "@fastify/pre-commit": "^2.1.0",
     "@types/connect": "^3.4.38",
-    "@types/node": "^20.12.7",
+    "@types/node": "^22.0.0",
     "cors": "^2.8.5",
     "fastify": "^4.26.2",
     "helmet": "^7.1.0",
