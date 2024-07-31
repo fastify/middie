@@ -99,7 +99,7 @@ function fastifyMiddie (fastify, options, next) {
 }
 
 module.exports = fp(fastifyMiddie, {
-  fastify: '4.x',
+  fastify: '5.x',
   name: '@fastify/middie'
 })
 module.exports.default = fastifyMiddie
