@@ -1,6 +1,6 @@
 {
   "name": "@fastify/middie",
-  "version": "9.0.0-pre.fv5.2",
+  "version": "9.0.0",
   "description": "Middleware engine for Fastify",
   "main": "index.js",
   "type": "commonjs",
@@ -40,7 +40,7 @@
     "@types/connect": "^3.4.38",
     "@types/node": "^22.0.0",
     "cors": "^2.8.5",
-    "fastify": "^5.0.0-alpha.3",
+    "fastify": "^5.0.0-alpha.4",
     "helmet": "^7.1.0",
     "serve-static": "^1.15.0",
     "simple-get": "^4.0.1",
@@ -50,7 +50,7 @@
   },
   "dependencies": {
     "@fastify/error": "^4.0.0",
-    "fastify-plugin": "^5.0.0-pre.fv5.1",
+    "fastify-plugin": "^5.0.0",
     "path-to-regexp": "^6.2.2",
     "reusify": "^1.0.4"
   },
