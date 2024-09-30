@@ -41,7 +41,7 @@
     "@types/node": "^22.0.0",
     "cors": "^2.8.5",
     "fastify": "^5.0.0",
-    "helmet": "^7.1.0",
+    "helmet": "^8.0.0",
     "serve-static": "^1.15.0",
     "simple-get": "^4.0.1",
     "standard": "^17.1.0",
