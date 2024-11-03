@@ -16,7 +16,7 @@ declare namespace fastifyMiddie {
   export interface FastifyMiddieOptions {
     hook?: 'onRequest' | 'preParsing' | 'preValidation' | 'preHandler' | 'preSerialization' | 'onSend' | 'onResponse' | 'onTimeout' | 'onError';
   }
-  
+
   /**
    * @deprecated Use FastifyMiddieOptions instead
    */
@@ -29,9 +29,9 @@ declare namespace fastifyMiddie {
   export type NextFunction = (err?: any) => void;
   export type SimpleHandleFunction = (req: http.IncomingMessage & IncomingMessageExtended, res: http.ServerResponse) => void;
   export type NextHandleFunction = (req: connect.IncomingMessage & IncomingMessageExtended, res: http.ServerResponse, next: NextFunction) => void;
-  
+
   export type Handler = SimpleHandleFunction | NextHandleFunction
-  
+
   export const fastifyMiddie: FastifyMiddie
   export { fastifyMiddie as default }
 }
