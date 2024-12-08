@@ -1,13 +1,13 @@
-import fastify from "fastify";
-import middiePlugin, {MiddiePluginOptions, IncomingMessageExtended, FastifyMiddieOptions} from "..";
-import { expectAssignable, expectType, expectDeprecated } from "tsd";
+import fastify from 'fastify'
+import middiePlugin, { MiddiePluginOptions, IncomingMessageExtended, FastifyMiddieOptions } from '..'
+import { expectAssignable, expectType, expectDeprecated } from 'tsd'
 
-const app = fastify();
-app.register(middiePlugin);
+const app = fastify()
+app.register(middiePlugin)
 
 expectAssignable<MiddiePluginOptions>({})
 
-expectAssignable<IncomingMessageExtended>({ body: { foo: 'bar' }, query: { bar: 'foo' }})
+expectAssignable<IncomingMessageExtended>({ body: { foo: 'bar' }, query: { bar: 'foo' } })
 expectAssignable<IncomingMessageExtended>({})
 
 app.use('/', (_req, _res, next) => {
