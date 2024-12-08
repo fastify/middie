@@ -7,9 +7,9 @@
   "types": "types/index.d.ts",
   "scripts": {
     "coverage": "tap --cov --coverage-report=html test.js",
-    "lint": "standard",
-    "lint:fix": "standard --fix",
-    "test": "standard && tap test/*.test.js && tsd",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "test": "tap test/*.test.js && tsd",
     "test:unit": "tap",
     "test:typescript": "tsd"
   },
@@ -42,9 +42,9 @@
     "cors": "^2.8.5",
     "fastify": "^5.0.0",
     "helmet": "^8.0.0",
+    "neostandard": "^0.11.9",
     "serve-static": "^1.15.0",
     "simple-get": "^4.0.1",
-    "standard": "^17.1.0",
     "tap": "^18.7.2",
     "tsd": "^0.31.0"
   },
