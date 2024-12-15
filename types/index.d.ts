@@ -1,6 +1,6 @@
 import * as connect from 'connect'
 import { FastifyPluginCallback } from 'fastify'
-import * as http from 'http'
+import * as http from 'node:http'
 
 declare module 'fastify' {
   interface FastifyInstance {
