@@ -24,6 +24,19 @@
     {
       "name": "Tomas Della Vedova",
       "url": "http://delved.org"
+    },
+    {
+      "name": "Manuel Spigolon",
+      "email": "behemoth89@gmail.com"
+    },
+    {
+      "name": "Aras Abbasi",
+      "email": "aras.abbasi@gmail.com"
+    },
+    {
+      "name": "Frazer Smith",
+      "email": "frazer.dev@icloud.com",
+      "url": "https://github.com/fdawgs"
     }
   ],
   "license": "MIT",
@@ -35,6 +48,16 @@
     "url": "https://github.com/fastify/middie/issues"
   },
   "homepage": "https://github.com/fastify/middie#readme",
+  "funding": [
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/fastify"
+    },
+    {
+      "type": "opencollective",
+      "url": "https://opencollective.com/fastify"
+    }
+  ],
   "devDependencies": {
     "@fastify/pre-commit": "^2.1.0",
     "@types/connect": "^3.4.38",
