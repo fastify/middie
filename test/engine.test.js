@@ -37,7 +37,7 @@ test('use a function', t => {
   }
   const res = {}
 
-  t.equal(instance.use(function (req, res, next) {
+  t.equal(instance.use(function (_req, _res, next) {
     t.pass('function called')
     next()
   }), instance)
@@ -59,10 +59,10 @@ test('use two functions', t => {
   const res = {}
   let counter = 0
 
-  instance.use(function (req, res, next) {
+  instance.use(function (_req, _res, next) {
     t.equal(counter++, 0, 'first function called')
     next()
-  }).use(function (req, res, next) {
+  }).use(function (_req, _res, next) {
     t.equal(counter++, 1, 'second function called')
     next()
   })
@@ -73,7 +73,7 @@ test('use two functions', t => {
 test('stop the middleware chain if one errors', t => {
   t.plan(1)
 
-  const instance = middie(function (err, a, b) {
+  const instance = middie(function (err) {
     t.ok(err, 'error is forwarded')
   })
   const req = {
@@ -81,9 +81,9 @@ test('stop the middleware chain if one errors', t => {
   }
   const res = {}
 
-  instance.use(function (req, res, next) {
+  instance.use(function (_req, _res, next) {
     next(new Error('kaboom'))
-  }).use(function (req, res, next) {
+  }).use(function (_req, _res, next) {
     t.fail('this should never be called')
     next()
   })
@@ -105,22 +105,22 @@ test('run restricted by path', t => {
   }
   const res = {}
 
-  t.equal(instance.use(function (req, res, next) {
+  t.equal(instance.use(function (_req, _res, next) {
     t.ok('function called')
     next()
   }), instance)
 
-  t.equal(instance.use('/test', function (req, res, next) {
+  t.equal(instance.use('/test', function (_req, _res, next) {
     t.ok('function called')
     next()
   }), instance)
 
-  t.equal(instance.use('/test', function (req, res, next) {
+  t.equal(instance.use('/test', function (req, _res, next) {
     t.equal('/', req.url)
     next()
   }), instance)
 
-  t.equal(instance.use('/no-call', function (req, res, next) {
+  t.equal(instance.use('/no-call', function (_req, _res, next) {
     t.fail('should not call this function')
     next()
   }), instance)
@@ -142,17 +142,17 @@ test('run restricted by path - prefix override', t => {
   }
   const res = {}
 
-  t.equal(instance.use(function (req, res, next) {
+  t.equal(instance.use(function (_req, _res, next) {
     t.ok('function called')
     next()
   }), instance)
 
-  t.equal(instance.use('/test', function (req, res, next) {
+  t.equal(instance.use('/test', function (_req, _res, next) {
     t.ok('function called')
     next()
   }), instance)
 
-  t.equal(instance.use('/test', function (req, res, next) {
+  t.equal(instance.use('/test', function (req, _res, next) {
     t.equal('/other/one', req.url)
     next()
   }), instance)
@@ -174,17 +174,17 @@ test('run restricted by path - prefix override 2', t => {
   }
   const res = {}
 
-  t.equal(instance.use(function (req, res, next) {
+  t.equal(instance.use(function (_req, _res, next) {
     t.ok('function called')
     next()
   }), instance)
 
-  t.equal(instance.use('/tasks-api', function (req, res, next) {
+  t.equal(instance.use('/tasks-api', function (_req, _res, next) {
     t.ok('function called')
     next()
   }), instance)
 
-  t.equal(instance.use('/tasks-api', function (req, res, next) {
+  t.equal(instance.use('/tasks-api', function (req, _res, next) {
     t.equal('/task', req.url)
     next()
   }), instance)
@@ -206,17 +206,17 @@ test('run restricted by array path', t => {
   }
   const res = {}
 
-  t.equal(instance.use(function (req, res, next) {
+  t.equal(instance.use(function (_req, _res, next) {
     t.ok('function called')
     next()
   }), instance)
 
-  t.equal(instance.use(['/test', '/other-path'], function (req, res, next) {
+  t.equal(instance.use(['/test', '/other-path'], function (_req, _res, next) {
     t.ok('function called')
     next()
   }), instance)
 
-  t.equal(instance.use(['/no-call', 'other-path'], function (req, res, next) {
+  t.equal(instance.use(['/no-call', 'other-path'], function (_req, _res, next) {
     t.fail('should not call this function')
     next()
   }), instance)
@@ -238,18 +238,18 @@ test('run array of middleware restricted by path', t => {
   }
   const res = {}
 
-  t.equal(instance.use([function (req, res, next) {
+  t.equal(instance.use([function (_req, _res, next) {
     t.ok('function called')
     next()
-  }, function (req, res, next) {
+  }, function (_req, _res, next) {
     t.ok('function called')
     next()
   }]), instance)
 
-  t.equal(instance.use('/test', [function (req, res, next) {
+  t.equal(instance.use('/test', [function (_req, _res, next) {
     t.ok('function called')
     next()
-  }, function (req, res, next) {
+  }, function (_req, _res, next) {
     t.ok('function called')
     next()
   }]), instance)
@@ -271,18 +271,18 @@ test('run array of middleware restricted by array path', t => {
   }
   const res = {}
 
-  t.equal(instance.use([function (req, res, next) {
+  t.equal(instance.use([function (_req, _res, next) {
     t.ok('function called')
     next()
-  }, function (req, res, next) {
+  }, function (_req, _res, next) {
     t.ok('function called')
     next()
   }]), instance)
 
-  t.equal(instance.use(['/test', '/other-path'], [function (req, res, next) {
+  t.equal(instance.use(['/test', '/other-path'], [function (_req, _res, next) {
     t.ok('function called')
     next()
-  }, function (req, res, next) {
+  }, function (_req, _res, next) {
     t.ok('function called')
     next()
   }]), instance)
@@ -304,7 +304,7 @@ test('Should strip the url to only match the pathname', t => {
   }
   const res = {}
 
-  t.equal(instance.use('/test', function (req, res, next) {
+  t.equal(instance.use('/test', function (_req, _res, next) {
     t.pass('function called')
     next()
   }), instance)
@@ -326,7 +326,7 @@ test('should keep the context', t => {
   }
   const res = {}
 
-  t.equal(instance.use(function (req, res, next) {
+  t.equal(instance.use(function (_req, _res, next) {
     t.pass('function called')
     next()
   }), instance)
@@ -345,7 +345,7 @@ test('should add `originalUrl` property to req', t => {
   }
   const res = {}
 
-  instance.use(function (req, res, next) {
+  instance.use(function (req, _res, next) {
     t.equal(req.originalUrl, '/test')
     next()
   })
@@ -395,7 +395,7 @@ test('limit serve static to a specific folder', t => {
 
 test('should match all chain', t => {
   t.plan(2)
-  const instance = middie(function (err, req, res) {
+  const instance = middie(function (err, req) {
     t.error(err)
     t.same(req, {
       url: '/inner/in/depth',
@@ -430,7 +430,7 @@ test('should match all chain', t => {
     { prefix: '/inner/in/depth/', name: 'innerInDepthSlashed' }
   ]
   prefixes.forEach(function (o) {
-    instance.use(o.prefix, function (req, res, next) {
+    instance.use(o.prefix, function (req, _res, next) {
       if (req[o.name]) throw new Error('Called twice!')
       req[o.name] = true
       next()
@@ -442,7 +442,7 @@ test('should match all chain', t => {
 
 test('should match the same slashed path', t => {
   t.plan(3)
-  const instance = middie(function (err, req, res) {
+  const instance = middie(function (err, req) {
     t.error(err)
     t.same(req, {
       url: '/path',
@@ -454,12 +454,12 @@ test('should match the same slashed path', t => {
   }
   const res = {}
 
-  instance.use('/path/', function (req, res, next) {
+  instance.use('/path/', function (_req, _res, next) {
     t.pass('function called')
     next()
   })
 
-  instance.use('/path/inner', function (req, res, next) {
+  instance.use('/path/inner', function (_req, _res, next) {
     t.fail()
     next()
   })
@@ -485,11 +485,11 @@ test('if the function calls res.end the iterator should stop / 1 (with deprecate
   }
 
   instance
-    .use(function (req, res, next) {
+    .use(function (_req, res, next) {
       res.end('hello')
       next()
     })
-    .use(function (req, res, next) {
+    .use(function () {
       t.fail('we should not be here')
     })
 
@@ -507,11 +507,11 @@ test('if the function calls res.end the iterator should stop / 2', t => {
   const res = new http.ServerResponse(req)
 
   instance
-    .use(function (req, res, next) {
+    .use(function (_req, res, next) {
       res.end('bye')
       next()
     })
-    .use(function (req, res, next) {
+    .use(function () {
       t.fail('we should not be here')
     })
 

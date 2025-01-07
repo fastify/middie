@@ -19,7 +19,7 @@ test('use a middleware', t => {
   const instance = fastify()
   instance.register(middiePlugin)
     .after(() => {
-      const useRes = instance.use(function (req, res, next) {
+      const useRes = instance.use(function (_req, _res, next) {
         t.pass('middleware called')
         next()
       })
@@ -27,7 +27,7 @@ test('use a middleware', t => {
       t.equal(useRes, instance)
     })
 
-  instance.get('/', function (request, reply) {
+  instance.get('/', function (_request, reply) {
     reply.send({ hello: 'world' })
   })
 
@@ -57,7 +57,7 @@ test('use cors', t => {
       instance.use(cors())
     })
 
-  instance.get('/', function (request, reply) {
+  instance.get('/', function (_request, reply) {
     reply.send({ hello: 'world' })
   })
 
@@ -69,7 +69,7 @@ test('use cors', t => {
     sget({
       method: 'GET',
       url: 'http://localhost:' + instance.server.address().port
-    }, (err, response, body) => {
+    }, (err, response) => {
       t.error(err)
       t.equal(response.headers['access-control-allow-origin'], '*')
     })
@@ -85,7 +85,7 @@ test('use helmet', t => {
       instance.use(helmet())
     })
 
-  instance.get('/', function (request, reply) {
+  instance.get('/', function (_request, reply) {
     reply.send({ hello: 'world' })
   })
 
@@ -97,7 +97,7 @@ test('use helmet', t => {
     sget({
       method: 'GET',
       url: 'http://localhost:' + instance.server.address().port
-    }, (err, response, body) => {
+    }, (err, response) => {
       t.error(err)
       t.ok(response.headers['x-xss-protection'])
     })
@@ -114,7 +114,7 @@ test('use helmet and cors', t => {
       instance.use(helmet())
     })
 
-  instance.get('/', function (request, reply) {
+  instance.get('/', function (_request, reply) {
     reply.send({ hello: 'world' })
   })
 
@@ -126,7 +126,7 @@ test('use helmet and cors', t => {
     sget({
       method: 'GET',
       url: 'http://localhost:' + instance.server.address().port
-    }, (err, response, body) => {
+    }, (err, response) => {
       t.error(err)
       t.ok(response.headers['x-xss-protection'])
       t.equal(response.headers['access-control-allow-origin'], '*')
@@ -140,23 +140,23 @@ test('middlewares with prefix', t => {
   const instance = fastify()
   instance.register(middiePlugin)
     .after(() => {
-      instance.use(function (req, res, next) {
+      instance.use(function (req, _res, next) {
         req.global = true
         next()
       })
-      instance.use('', function (req, res, next) {
+      instance.use('', function (req, _res, next) {
         req.global2 = true
         next()
       })
-      instance.use('/', function (req, res, next) {
+      instance.use('/', function (req, _res, next) {
         req.root = true
         next()
       })
-      instance.use('/prefix', function (req, res, next) {
+      instance.use('/prefix', function (req, _res, next) {
         req.prefixed = true
         next()
       })
-      instance.use('/prefix/', function (req, res, next) {
+      instance.use('/prefix/', function (req, _res, next) {
         req.slashed = true
         next()
       })
@@ -187,7 +187,7 @@ test('middlewares with prefix', t => {
         method: 'GET',
         url: 'http://localhost:' + instance.server.address().port + '/',
         json: true
-      }, (err, response, body) => {
+      }, (err, _response, body) => {
         t.error(err)
         t.same(body, {
           global: true,
@@ -203,7 +203,7 @@ test('middlewares with prefix', t => {
         method: 'GET',
         url: 'http://localhost:' + instance.server.address().port + '/prefix',
         json: true
-      }, (err, response, body) => {
+      }, (err, _response, body) => {
         t.error(err)
         t.same(body, {
           prefixed: true,
@@ -221,7 +221,7 @@ test('middlewares with prefix', t => {
         method: 'GET',
         url: 'http://localhost:' + instance.server.address().port + '/prefix/',
         json: true
-      }, (err, response, body) => {
+      }, (err, _response, body) => {
         t.error(err)
         t.same(body, {
           prefixed: true,
@@ -239,7 +239,7 @@ test('middlewares with prefix', t => {
         method: 'GET',
         url: 'http://localhost:' + instance.server.address().port + '/prefix/inner',
         json: true
-      }, (err, response, body) => {
+      }, (err, _response, body) => {
         t.error(err)
         t.same(body, {
           prefixed: true,
@@ -259,34 +259,34 @@ test('res.end should block middleware execution', t => {
   const instance = fastify()
   instance.register(middiePlugin)
     .after(() => {
-      instance.use(function (req, res, next) {
+      instance.use(function (_req, res, _next) {
         res.end('hello')
       })
 
-      instance.use(function (req, res, next) {
+      instance.use(function () {
         t.fail('we should not be here')
       })
     })
 
-  instance.addHook('onRequest', (req, res, next) => {
+  instance.addHook('onRequest', (_req, _res, next) => {
     t.ok('called')
     next()
   })
 
-  instance.addHook('preHandler', (req, reply, next) => {
+  instance.addHook('preHandler', (_req, _reply, _next) => {
     t.fail('this should not be called')
   })
 
-  instance.addHook('onSend', (req, reply, payload, next) => {
+  instance.addHook('onSend', (_req, _reply, _payload, _next) => {
     t.fail('this should not be called')
   })
 
-  instance.addHook('onResponse', (request, reply, next) => {
+  instance.addHook('onResponse', (_request, _reply, next) => {
     t.ok('called')
     next()
   })
 
-  instance.get('/', function (request, reply) {
+  instance.get('/', function () {
     t.fail('we should no be here')
   })
 
@@ -305,38 +305,38 @@ test('middlewares should be able to respond with a stream', t => {
 
   const instance = fastify()
 
-  instance.addHook('onRequest', (req, res, next) => {
+  instance.addHook('onRequest', (_req, _res, next) => {
     t.ok('called')
     next()
   })
 
   instance.register(middiePlugin)
     .after(() => {
-      instance.use(function (req, res, next) {
+      instance.use(function (_req, res, next) {
         const stream = fs.createReadStream(process.cwd() + '/test/middleware.test.js', 'utf8')
         stream.pipe(res)
         res.once('finish', next)
       })
 
-      instance.use(function (req, res, next) {
+      instance.use(function () {
         t.fail('we should not be here')
       })
     })
 
-  instance.addHook('preHandler', (req, reply, next) => {
+  instance.addHook('preHandler', () => {
     t.fail('this should not be called')
   })
 
-  instance.addHook('onSend', (req, reply, payload, next) => {
+  instance.addHook('onSend', () => {
     t.fail('this should not be called')
   })
 
-  instance.addHook('onResponse', (request, reply, next) => {
+  instance.addHook('onResponse', (_request, _reply, next) => {
     t.ok('called')
     next()
   })
 
-  instance.get('/', function (request, reply) {
+  instance.get('/', function () {
     t.fail('we should no be here')
   })
 
@@ -354,21 +354,21 @@ test('Use a middleware inside a plugin after an encapsulated plugin', t => {
   const f = fastify()
   f.register(middiePlugin)
 
-  f.register(function (instance, opts, next) {
-    instance.use(function (req, res, next) {
+  f.register(function (instance, _opts, next) {
+    instance.use(function (_req, _res, next) {
       t.ok('first middleware called')
       next()
     })
 
-    instance.get('/', function (request, reply) {
+    instance.get('/', function (_request, reply) {
       reply.send({ hello: 'world' })
     })
 
     next()
   })
 
-  f.register(fp(function (instance, opts, next) {
-    instance.use(function (req, res, next) {
+  f.register(fp(function (instance, _opts, next) {
+    instance.use(function (_req, _res, next) {
       t.ok('second middleware called')
       next()
     })
@@ -388,15 +388,15 @@ test('middlewares should run in the order in which they are defined', t => {
   const f = fastify()
   f.register(middiePlugin)
 
-  f.register(fp(function (instance, opts, next) {
-    instance.use(function (req, res, next) {
+  f.register(fp(function (instance, _opts, next) {
+    instance.use(function (req, _res, next) {
       t.equal(req.previous, undefined)
       req.previous = 1
       next()
     })
 
-    instance.register(fp(function (i, opts, next) {
-      i.use(function (req, res, next) {
+    instance.register(fp(function (i, _opts, next) {
+      i.use(function (req, _res, next) {
         t.equal(req.previous, 2)
         req.previous = 3
         next()
@@ -404,7 +404,7 @@ test('middlewares should run in the order in which they are defined', t => {
       next()
     }))
 
-    instance.use(function (req, res, next) {
+    instance.use(function (req, _res, next) {
       t.equal(req.previous, 1)
       req.previous = 2
       next()
@@ -413,8 +413,8 @@ test('middlewares should run in the order in which they are defined', t => {
     next()
   }))
 
-  f.register(function (instance, opts, next) {
-    instance.use(function (req, res, next) {
+  f.register(function (instance, _opts, next) {
+    instance.use(function (req, _res, next) {
       t.equal(req.previous, 3)
       req.previous = 4
       next()
@@ -425,8 +425,8 @@ test('middlewares should run in the order in which they are defined', t => {
       reply.send({ hello: 'world' })
     })
 
-    instance.register(fp(function (i, opts, next) {
-      i.use(function (req, res, next) {
+    instance.register(fp(function (i, _opts, next) {
+      i.use(function (req, _res, next) {
         t.equal(req.previous, 4)
         req.previous = 5
         next()

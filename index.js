@@ -80,7 +80,7 @@ function fastifyMiddie (fastify, options, next) {
     runMiddie.bind(this)(req, reply, next)
   }
 
-  function onMiddieEnd (err, req, res, next) {
+  function onMiddieEnd (err, _req, _res, next) {
     next(err)
   }
 
