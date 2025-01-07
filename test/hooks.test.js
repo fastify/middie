@@ -9,7 +9,7 @@ test('onSend hook should receive valid request and reply objects if middleware f
   const fastify = Fastify()
   fastify.register(middiePlugin)
     .after(() => {
-      fastify.use(function (req, res, next) {
+      fastify.use(function (_req, _res, next) {
         next(new Error('middlware failed'))
       })
     })
@@ -17,13 +17,13 @@ test('onSend hook should receive valid request and reply objects if middleware f
   fastify.decorateRequest('testDecorator', 'testDecoratorVal')
   fastify.decorateReply('testDecorator', 'testDecoratorVal')
 
-  fastify.addHook('onSend', function (request, reply, payload, next) {
+  fastify.addHook('onSend', function (request, reply, _payload, next) {
     t.equal(request.testDecorator, 'testDecoratorVal')
     t.equal(reply.testDecorator, 'testDecoratorVal')
     next()
   })
 
-  fastify.get('/', (req, reply) => {
+  fastify.get('/', (_req, reply) => {
     reply.send('hello')
   })
 
