@@ -106,7 +106,7 @@ It is possible to change the Fastify hook that the middleware will be attached t
 
 To change the hook, pass a `hook` option like so:
 
-*Note you can access `req.body` from the `preParsing`, `onError`, `preSerialization` and `onSend` lifecycle steps. Take a look at the [Lifecycle](https://www.fastify.dev/docs/latest/Reference/Lifecycle/) documentation page to see the order of the steps.*
+*Note you can access `req.body` from the `preParsing`, `onError`, `preSerialization`, and `onSend` lifecycle steps. Take a look at the [Lifecycle](https://www.fastify.dev/docs/latest/Reference/Lifecycle/) documentation page to see the order of the steps.*
 
 ```js
 const fastify = require('fastify')()
@@ -137,7 +137,7 @@ async function subsystem (fastify, opts) {
 
 ### Restrict middleware execution to a certain path(s)
 
-If you need to run a middleware only under certain path(s), just pass the path as first parameter to use and you are done!
+If you need to run a middleware only under certain path(s), just pass the path as the first parameter to use and you are done!
 
 ```js
 const fastify = require('fastify')()
@@ -162,7 +162,7 @@ async function subsystem (fastify, opts) {
 
 #### :warning: potential ReDoS attacks
 
-Middie use [`path-to-regexp`](http://npm.im/path-to-regexp) to convert paths to regular expressions.
+Middie uses [`path-to-regexp`](http://npm.im/path-to-regexp) to convert paths to regular expressions.
 This might cause potential [ReDoS](https://en.wikipedia.org/wiki/ReDoS) attacks in your applications if
 certain patterns are used. Use it with care.
 
@@ -199,7 +199,7 @@ function _runMiddlewares (err, req, res) {
 ```
 <a name="keep-context"></a>
 #### Keep the context
-If you need it you can also keep the context of the calling function by calling `run` with `run(req, res, this)`, in this way you can avoid closures allocation.
+If you need it you can also keep the context of the calling function by calling `run` with `run(req, res, this)`, avoiding closures allocation.
 
 ```js
 http
@@ -220,7 +220,7 @@ function _runMiddlewares (err, req, res, ctx) {
 
 <a name="restrict-usage"></a>
 #### Restrict middleware execution to a certain path(s)
-If you need to run a middleware only under certains path(s), just pass the path as first parameter to `use` and you are done!
+If you need to run a middleware only under certain path(s), just pass the path as the first parameter to `use` and you are done!
 
 *Note that this does support routes with parameters, e.g. `/user/:id/comments`, but all the matched parameters will be discarded*
 
@@ -239,7 +239,7 @@ middie.use(['/public', '/dist'], [cors(), staticFiles('/assets')])
 ```
 
 To guarantee compatibility with Express, adding a prefix uses [`path-to-regexp`](https://www.npmjs.com/package/path-to-regexp) to compute
-a `RegExp`, which is then used to math every request: it is significantly slower.
+a `RegExp`, which is then used to match every request: it is significantly slower.
 
 ## TypeScript support
 
@@ -255,7 +255,7 @@ Fastify offers some alternatives to the most commonly used Express middleware:
 | [`cors`](https://github.com/expressjs/cors) | [`fastify-cors`](https://github.com/fastify/fastify-cors) |
 | [`serve-static`](https://github.com/expressjs/serve-static) | [`fastify-static`](https://github.com/fastify/fastify-static) |
 
-## Acknowledgements
+## Acknowledgments
 
 This project is kindly sponsored by:
 - [nearForm](https://nearform.com)
