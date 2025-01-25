@@ -1,7 +1,7 @@
 'use strict'
 
 const middie = require('../lib/engine')
-const t = require('tap')
+const t = require('node:test')
 const http = require('node:http')
 const { join } = require('node:path')
 const serveStatic = require('serve-static')
@@ -11,9 +11,9 @@ test('use no function', t => {
   t.plan(3)
 
   const instance = middie(function (err, a, b) {
-    t.error(err)
-    t.equal(a, req)
-    t.equal(b, res)
+    t.assert.ifError(err)
+    t.assert.strictEqual(a, req)
+    t.assert.strictEqual(b, res)
   })
 
   const req = {
@@ -28,17 +28,17 @@ test('use a function', t => {
   t.plan(5)
 
   const instance = middie(function (err, a, b) {
-    t.error(err)
-    t.equal(a, req)
-    t.equal(b, res)
+    t.assert.ifError(err)
+    t.assert.strictEqual(a, req)
+    t.assert.strictEqual(b, res)
   })
   const req = {
     url: '/test'
   }
   const res = {}
 
-  t.equal(instance.use(function (_req, _res, next) {
-    t.pass('function called')
+  t.assert.strictEqual(instance.use(function (_req, _res, next) {
+    t.assert.ok('function called')
     next()
   }), instance)
 
@@ -49,9 +49,9 @@ test('use two functions', t => {
   t.plan(5)
 
   const instance = middie(function (err, a, b) {
-    t.error(err)
-    t.equal(a, req)
-    t.equal(b, res)
+    t.assert.ifError(err)
+    t.assert.strictEqual(a, req)
+    t.assert.strictEqual(b, res)
   })
   const req = {
     url: '/test'
@@ -60,10 +60,10 @@ test('use two functions', t => {
   let counter = 0
 
   instance.use(function (_req, _res, next) {
-    t.equal(counter++, 0, 'first function called')
+    t.assert.strictEqual(counter++, 0, 'first function called')
     next()
   }).use(function (_req, _res, next) {
-    t.equal(counter++, 1, 'second function called')
+    t.assert.strictEqual(counter++, 1, 'second function called')
     next()
   })
 
@@ -74,7 +74,7 @@ test('stop the middleware chain if one errors', t => {
   t.plan(1)
 
   const instance = middie(function (err) {
-    t.ok(err, 'error is forwarded')
+    t.assert.ok(err, 'error is forwarded')
   })
   const req = {
     url: '/test'
@@ -95,32 +95,32 @@ test('run restricted by path', t => {
   t.plan(11)
 
   const instance = middie(function (err, a, b) {
-    t.error(err)
-    t.equal(a, req)
-    t.equal('/test', req.url)
-    t.equal(b, res)
+    t.assert.ifError(err)
+    t.assert.strictEqual(a, req)
+    t.assert.strictEqual('/test', req.url)
+    t.assert.strictEqual(b, res)
   })
   const req = {
     url: '/test'
   }
   const res = {}
 
-  t.equal(instance.use(function (_req, _res, next) {
-    t.ok('function called')
+  t.assert.strictEqual(instance.use(function (_req, _res, next) {
+    t.assert.ok('function called')
     next()
   }), instance)
 
-  t.equal(instance.use('/test', function (_req, _res, next) {
-    t.ok('function called')
+  t.assert.strictEqual(instance.use('/test', function (_req, _res, next) {
+    t.assert.ok('function called')
     next()
   }), instance)
 
-  t.equal(instance.use('/test', function (req, _res, next) {
-    t.equal('/', req.url)
+  t.assert.strictEqual(instance.use('/test', function (req, _res, next) {
+    t.assert.strictEqual('/', req.url)
     next()
   }), instance)
 
-  t.equal(instance.use('/no-call', function (_req, _res, next) {
+  t.assert.strictEqual(instance.use('/no-call', function (_req, _res, next) {
     t.fail('should not call this function')
     next()
   }), instance)
@@ -132,28 +132,28 @@ test('run restricted by path - prefix override', t => {
   t.plan(10)
 
   const instance = middie(function (err, a, b) {
-    t.error(err)
-    t.equal(a, req)
-    t.equal('/test/other/one', req.url)
-    t.equal(b, res)
+    t.assert.ifError(err)
+    t.assert.strictEqual(a, req)
+    t.assert.strictEqual('/test/other/one', req.url)
+    t.assert.strictEqual(b, res)
   })
   const req = {
     url: '/test/other/one'
   }
   const res = {}
 
-  t.equal(instance.use(function (_req, _res, next) {
-    t.ok('function called')
+  t.assert.strictEqual(instance.use(function (_req, _res, next) {
+    t.assert.ok('function called')
     next()
   }), instance)
 
-  t.equal(instance.use('/test', function (_req, _res, next) {
-    t.ok('function called')
+  t.assert.strictEqual(instance.use('/test', function (_req, _res, next) {
+    t.assert.ok('function called')
     next()
   }), instance)
 
-  t.equal(instance.use('/test', function (req, _res, next) {
-    t.equal('/other/one', req.url)
+  t.assert.strictEqual(instance.use('/test', function (req, _res, next) {
+    t.assert.strictEqual('/other/one', req.url)
     next()
   }), instance)
 
@@ -164,28 +164,28 @@ test('run restricted by path - prefix override 2', t => {
   t.plan(10)
 
   const instance = middie(function (err, a, b) {
-    t.error(err)
-    t.equal(a, req)
-    t.equal('/tasks-api/task', req.url)
-    t.equal(b, res)
+    t.assert.ifError(err)
+    t.assert.strictEqual(a, req)
+    t.assert.strictEqual('/tasks-api/task', req.url)
+    t.assert.strictEqual(b, res)
   })
   const req = {
     url: '/tasks-api/task'
   }
   const res = {}
 
-  t.equal(instance.use(function (_req, _res, next) {
-    t.ok('function called')
+  t.assert.strictEqual(instance.use(function (_req, _res, next) {
+    t.assert.ok('function called')
     next()
   }), instance)
 
-  t.equal(instance.use('/tasks-api', function (_req, _res, next) {
-    t.ok('function called')
+  t.assert.strictEqual(instance.use('/tasks-api', function (_req, _res, next) {
+    t.assert.ok('function called')
     next()
   }), instance)
 
-  t.equal(instance.use('/tasks-api', function (req, _res, next) {
-    t.equal('/task', req.url)
+  t.assert.strictEqual(instance.use('/tasks-api', function (req, _res, next) {
+    t.assert.strictEqual('/task', req.url)
     next()
   }), instance)
 
@@ -196,27 +196,27 @@ test('run restricted by array path', t => {
   t.plan(9)
 
   const instance = middie(function (err, a, b) {
-    t.error(err)
-    t.equal(a, req)
-    t.equal('/test', req.url)
-    t.equal(b, res)
+    t.assert.ifError(err)
+    t.assert.strictEqual(a, req)
+    t.assert.strictEqual('/test', req.url)
+    t.assert.strictEqual(b, res)
   })
   const req = {
     url: '/test'
   }
   const res = {}
 
-  t.equal(instance.use(function (_req, _res, next) {
-    t.ok('function called')
+  t.assert.strictEqual(instance.use(function (_req, _res, next) {
+    t.assert.ok('function called')
     next()
   }), instance)
 
-  t.equal(instance.use(['/test', '/other-path'], function (_req, _res, next) {
-    t.ok('function called')
+  t.assert.strictEqual(instance.use(['/test', '/other-path'], function (_req, _res, next) {
+    t.assert.ok('function called')
     next()
   }), instance)
 
-  t.equal(instance.use(['/no-call', 'other-path'], function (_req, _res, next) {
+  t.assert.strictEqual(instance.use(['/no-call', 'other-path'], function (_req, _res, next) {
     t.fail('should not call this function')
     next()
   }), instance)
@@ -228,29 +228,29 @@ test('run array of middleware restricted by path', t => {
   t.plan(10)
 
   const instance = middie(function (err, a, b) {
-    t.error(err)
-    t.equal(a, req)
-    t.equal('/test', req.url)
-    t.equal(b, res)
+    t.assert.ifError(err)
+    t.assert.strictEqual(a, req)
+    t.assert.strictEqual('/test', req.url)
+    t.assert.strictEqual(b, res)
   })
   const req = {
     url: '/test'
   }
   const res = {}
 
-  t.equal(instance.use([function (_req, _res, next) {
-    t.ok('function called')
+  t.assert.strictEqual(instance.use([function (_req, _res, next) {
+    t.assert.ok('function called')
     next()
   }, function (_req, _res, next) {
-    t.ok('function called')
+    t.assert.ok('function called')
     next()
   }]), instance)
 
-  t.equal(instance.use('/test', [function (_req, _res, next) {
-    t.ok('function called')
+  t.assert.strictEqual(instance.use('/test', [function (_req, _res, next) {
+    t.assert.ok('function called')
     next()
   }, function (_req, _res, next) {
-    t.ok('function called')
+    t.assert.ok('function called')
     next()
   }]), instance)
 
@@ -261,29 +261,29 @@ test('run array of middleware restricted by array path', t => {
   t.plan(10)
 
   const instance = middie(function (err, a, b) {
-    t.error(err)
-    t.equal(a, req)
-    t.equal('/test', req.url)
-    t.equal(b, res)
+    t.assert.ifError(err)
+    t.assert.strictEqual(a, req)
+    t.assert.strictEqual('/test', req.url)
+    t.assert.strictEqual(b, res)
   })
   const req = {
     url: '/test'
   }
   const res = {}
 
-  t.equal(instance.use([function (_req, _res, next) {
-    t.ok('function called')
+  t.assert.strictEqual(instance.use([function (_req, _res, next) {
+    t.assert.ok('function called')
     next()
   }, function (_req, _res, next) {
-    t.ok('function called')
+    t.assert.ok('function called')
     next()
   }]), instance)
 
-  t.equal(instance.use(['/test', '/other-path'], [function (_req, _res, next) {
-    t.ok('function called')
+  t.assert.strictEqual(instance.use(['/test', '/other-path'], [function (_req, _res, next) {
+    t.assert.ok('function called')
     next()
   }, function (_req, _res, next) {
-    t.ok('function called')
+    t.assert.ok('function called')
     next()
   }]), instance)
 
@@ -294,18 +294,18 @@ test('Should strip the url to only match the pathname', t => {
   t.plan(6)
 
   const instance = middie(function (err, a, b) {
-    t.error(err)
-    t.equal(a, req)
-    t.equal(req.url, '/test#foo?bin=baz')
-    t.equal(b, res)
+    t.assert.ifError(err)
+    t.assert.strictEqual(a, req)
+    t.assert.strictEqual(req.url, '/test#foo?bin=baz')
+    t.assert.strictEqual(b, res)
   })
   const req = {
     url: '/test#foo?bin=baz'
   }
   const res = {}
 
-  t.equal(instance.use('/test', function (_req, _res, next) {
-    t.pass('function called')
+  t.assert.strictEqual(instance.use('/test', function (_req, _res, next) {
+    t.assert.ok('function called')
     next()
   }), instance)
 
@@ -316,18 +316,18 @@ test('should keep the context', t => {
   t.plan(6)
 
   const instance = middie(function (err, a, b, ctx) {
-    t.error(err)
-    t.equal(a, req)
-    t.equal(b, res)
-    t.ok(ctx.key)
+    t.assert.ifError(err)
+    t.assert.strictEqual(a, req)
+    t.assert.strictEqual(b, res)
+    t.assert.ok(ctx.key)
   })
   const req = {
     url: '/test'
   }
   const res = {}
 
-  t.equal(instance.use(function (_req, _res, next) {
-    t.pass('function called')
+  t.assert.strictEqual(instance.use(function (_req, _res, next) {
+    t.assert.ok('function called')
     next()
   }), instance)
 
@@ -338,7 +338,7 @@ test('should add `originalUrl` property to req', t => {
   t.plan(2)
 
   const instance = middie(function (err) {
-    t.error(err)
+    t.assert.ifError(err)
   })
   const req = {
     url: '/test'
@@ -346,14 +346,14 @@ test('should add `originalUrl` property to req', t => {
   const res = {}
 
   instance.use(function (req, _res, next) {
-    t.equal(req.originalUrl, '/test')
+    t.assert.strictEqual(req.originalUrl, '/test')
     next()
   })
 
   instance.run(req, res)
 })
 
-test('basic serve static', t => {
+test('basic serve static', (t, done) => {
   const instance = middie(function () {
     t.fail('the default route should never be called')
   })
@@ -362,16 +362,16 @@ test('basic serve static', t => {
 
   server.listen(0, function () {
     http.get(`http://localhost:${server.address().port}/README.md`, function (res) {
-      t.equal(res.statusCode, 200)
+      t.assert.strictEqual(res.statusCode, 200)
       res.resume()
       server.close()
       server.unref()
-      t.end()
+      done()
     })
   })
 })
 
-test('limit serve static to a specific folder', t => {
+test('limit serve static to a specific folder', (t, done) => {
   const instance = middie(function () {
     t.fail('the default route should never be called')
     req.destroy()
@@ -384,11 +384,11 @@ test('limit serve static to a specific folder', t => {
 
   server.listen(0, function () {
     req = http.get(`http://localhost:${server.address().port}/assets/README.md`, function (res) {
-      t.equal(res.statusCode, 200)
+      t.assert.strictEqual(res.statusCode, 200)
       res.resume()
       server.close()
       server.unref()
-      t.end()
+      done()
     })
   })
 })
@@ -396,8 +396,8 @@ test('limit serve static to a specific folder', t => {
 test('should match all chain', t => {
   t.plan(2)
   const instance = middie(function (err, req) {
-    t.error(err)
-    t.same(req, {
+    t.assert.ifError(err)
+    t.assert.deepStrictEqual(req, {
       url: '/inner/in/depth',
       originalUrl: '/inner/in/depth',
       undefined: true,
@@ -443,8 +443,8 @@ test('should match all chain', t => {
 test('should match the same slashed path', t => {
   t.plan(3)
   const instance = middie(function (err, req) {
-    t.error(err)
-    t.same(req, {
+    t.assert.ifError(err)
+    t.assert.deepStrictEqual(req, {
       url: '/path',
       originalUrl: '/path'
     })
@@ -455,7 +455,7 @@ test('should match the same slashed path', t => {
   const res = {}
 
   instance.use('/path/', function (_req, _res, next) {
-    t.pass('function called')
+    t.assert.ok('function called')
     next()
   })
 
@@ -479,7 +479,7 @@ test('if the function calls res.end the iterator should stop / 1 (with deprecate
   const res = {
     finished: false,
     end: function () {
-      t.pass('res.end')
+      t.assert.ok('res.end')
       this.finished = true
     }
   }
