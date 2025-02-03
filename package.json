@@ -9,8 +9,8 @@
     "coverage": "c8 node --test",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "test": "node --test test/*.test.js && tsd",
-    "test:unit": "node --test test/*.test.js",
+    "test": "npm run test:unit && npm run test:typescript",
+    "test:unit": "node --test",
     "test:typescript": "tsd"
   },
   "keywords": [
