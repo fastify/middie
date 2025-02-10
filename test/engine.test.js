@@ -84,7 +84,7 @@ test('stop the middleware chain if one errors', t => {
   instance.use(function (_req, _res, next) {
     next(new Error('kaboom'))
   }).use(function (_req, _res, next) {
-    t.fail('this should never be called')
+    t.assert.fail('this should never be called')
     next()
   })
 
@@ -121,7 +121,7 @@ test('run restricted by path', t => {
   }), instance)
 
   t.assert.strictEqual(instance.use('/no-call', function (_req, _res, next) {
-    t.fail('should not call this function')
+    t.assert.fail('should not call this function')
     next()
   }), instance)
 
@@ -217,7 +217,7 @@ test('run restricted by array path', t => {
   }), instance)
 
   t.assert.strictEqual(instance.use(['/no-call', 'other-path'], function (_req, _res, next) {
-    t.fail('should not call this function')
+    t.assert.fail('should not call this function')
     next()
   }), instance)
 
@@ -355,7 +355,7 @@ test('should add `originalUrl` property to req', t => {
 
 test('basic serve static', (t, done) => {
   const instance = middie(function () {
-    t.fail('the default route should never be called')
+    t.assert.fail('the default route should never be called')
   })
   instance.use(serveStatic(join(__dirname, '..')))
   const server = http.createServer(instance.run.bind(instance))
@@ -373,7 +373,7 @@ test('basic serve static', (t, done) => {
 
 test('limit serve static to a specific folder', (t, done) => {
   const instance = middie(function () {
-    t.fail('the default route should never be called')
+    t.assert.fail('the default route should never be called')
     req.destroy()
     server.close()
     server.unref()
@@ -460,7 +460,7 @@ test('should match the same slashed path', t => {
   })
 
   instance.use('/path/inner', function (_req, _res, next) {
-    t.fail()
+    t.assert.fail()
     next()
   })
 
@@ -471,7 +471,7 @@ test('if the function calls res.end the iterator should stop / 1 (with deprecate
   t.plan(1)
 
   const instance = middie(function () {
-    t.fail('we should not be here')
+    t.assert.fail('we should not be here')
   })
   const req = {
     url: '/test'
@@ -490,7 +490,7 @@ test('if the function calls res.end the iterator should stop / 1 (with deprecate
       next()
     })
     .use(function () {
-      t.fail('we should not be here')
+      t.assert.fail('we should not be here')
     })
 
   instance.run(req, res)
@@ -500,7 +500,7 @@ test('if the function calls res.end the iterator should stop / 2', t => {
   t.plan(0)
 
   const instance = middie(function () {
-    t.fail('we should not be here')
+    t.assert.fail('we should not be here')
   })
   const req = new http.IncomingMessage(null)
   req.url = '/test'
@@ -512,7 +512,7 @@ test('if the function calls res.end the iterator should stop / 2', t => {
       next()
     })
     .use(function () {
-      t.fail('we should not be here')
+      t.assert.fail('we should not be here')
     })
 
   instance.run(req, res)

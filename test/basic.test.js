@@ -464,11 +464,11 @@ test('Middleware chain (with errors) / 1', (t, done) => {
   }
 
   function middleware2 () {
-    t.fail('this should not be executed')
+    t.assert.fail('this should not be executed')
   }
 
   function middleware3 () {
-    t.fail('this should not be executed')
+    t.assert.fail('this should not be executed')
   }
 })
 
