@@ -617,6 +617,40 @@ test('Should support plugin level prefix', (t, done) => {
   })
 })
 
+test('Should support plugin level prefix with root path', (t, done) => {
+  t.plan(4)
+  const fastify = Fastify()
+  t.after(() => fastify.close())
+
+  fastify.register(middiePlugin)
+
+  fastify.register((instance, _opts, next) => {
+    instance.use('/', (_req, res, next) => {
+      res.setHeader('x-foo', 'bar')
+      next()
+    })
+
+    instance.get('/', (_req, reply) => {
+      reply.send({ hello: 'world' })
+    })
+
+    next()
+  }, { prefix: '/hello' })
+
+  fastify.listen({ port: 0 }, (err, address) => {
+    t.assert.ifError(err)
+    sget({
+      method: 'GET',
+      url: address + '/hello'
+    }, (err, res, data) => {
+      t.assert.ifError(err)
+      t.assert.strictEqual(res.headers['x-foo'], 'bar')
+      t.assert.deepStrictEqual(JSON.parse(data), { hello: 'world' })
+      done()
+    })
+  })
+})
+
 test('register the middleware at preHandler hook', async t => {
   t.plan(2)
 
