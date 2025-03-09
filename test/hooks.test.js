@@ -1,10 +1,10 @@
 'use strict'
 
-const { test } = require('tap')
+const { test } = require('node:test')
 const Fastify = require('fastify')
 const middiePlugin = require('../index')
 
-test('onSend hook should receive valid request and reply objects if middleware fails', t => {
+test('onSend hook should receive valid request and reply objects if middleware fails', (t, done) => {
   t.plan(4)
   const fastify = Fastify()
   fastify.register(middiePlugin)
@@ -18,8 +18,8 @@ test('onSend hook should receive valid request and reply objects if middleware f
   fastify.decorateReply('testDecorator', 'testDecoratorVal')
 
   fastify.addHook('onSend', function (request, reply, _payload, next) {
-    t.equal(request.testDecorator, 'testDecoratorVal')
-    t.equal(reply.testDecorator, 'testDecoratorVal')
+    t.assert.strictEqual(request.testDecorator, 'testDecoratorVal')
+    t.assert.strictEqual(reply.testDecorator, 'testDecoratorVal')
     next()
   })
 
@@ -31,7 +31,8 @@ test('onSend hook should receive valid request and reply objects if middleware f
     method: 'GET',
     url: '/'
   }, (err, res) => {
-    t.error(err)
-    t.equal(res.statusCode, 500)
+    t.assert.ifError(err)
+    t.assert.strictEqual(res.statusCode, 500)
+    done()
   })
 })
