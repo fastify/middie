@@ -137,8 +137,8 @@ test('use helmet and cors', (t, done) => {
   })
 })
 
-test('middlewares with prefix', (t, done) => {
-  t.plan(5)
+test('middlewares with prefix', async t => {
+  t.plan(4)
 
   const instance = fastify()
   instance.register(middiePlugin)
@@ -180,83 +180,80 @@ test('middlewares with prefix', (t, done) => {
   instance.get('/prefix/', handler)
   instance.get('/prefix/inner', handler)
 
-  instance.listen({ port: 0 }, err => {
-    t.assert.ifError(err)
-    t.after(() => instance.server.close())
+  const address = await instance.listen({ port: 0 })
+  t.after(() => instance.server.close())
 
-    t.test('/', (t, d) => {
-      t.plan(2)
-      sget({
-        method: 'GET',
-        url: 'http://localhost:' + instance.server.address().port + '/',
-        json: true
-      }, (err, _response, body) => {
-        t.assert.ifError(err)
-        t.assert.deepStrictEqual(body, {
-          global: true,
-          global2: true,
-          root: true
-        })
-        d()
+  await t.test('/', (t, done) => {
+    t.plan(2)
+    sget({
+      method: 'GET',
+      url: address + '/',
+      json: true
+    }, (err, _response, body) => {
+      t.assert.ifError(err)
+      t.assert.deepStrictEqual(body, {
+        global: true,
+        global2: true,
+        root: true
       })
+      done()
     })
+  })
 
-    t.test('/prefix', (t, d) => {
-      t.plan(2)
-      sget({
-        method: 'GET',
-        url: 'http://localhost:' + instance.server.address().port + '/prefix',
-        json: true
-      }, (err, _response, body) => {
-        t.assert.ifError(err)
-        t.assert.deepStrictEqual(body, {
-          prefixed: true,
-          global: true,
-          global2: true,
-          root: true,
-          slashed: true
-        })
-        d()
+  await t.test('/prefix', (t, done) => {
+    t.plan(2)
+    sget({
+      method: 'GET',
+      url: address + '/prefix',
+      json: true
+    }, (err, _response, body) => {
+      t.assert.ifError(err)
+      t.assert.deepStrictEqual(body, {
+        prefixed: true,
+        global: true,
+        global2: true,
+        root: true,
+        slashed: true
       })
+      done()
     })
+  })
 
-    t.test('/prefix/', (t, d) => {
-      t.plan(2)
-      sget({
-        method: 'GET',
-        url: 'http://localhost:' + instance.server.address().port + '/prefix/',
-        json: true
-      }, (err, _response, body) => {
-        t.assert.ifError(err)
-        t.assert.deepStrictEqual(body, {
-          prefixed: true,
-          slashed: true,
-          global: true,
-          global2: true,
-          root: true
-        })
-        d()
+  await t.test('/prefix/', (t, done) => {
+    t.plan(2)
+    sget({
+      method: 'GET',
+      url: address + '/prefix/',
+      json: true
+    }, (err, _response, body) => {
+      t.assert.ifError(err)
+      t.assert.deepStrictEqual(body, {
+        prefixed: true,
+        slashed: true,
+        global: true,
+        global2: true,
+        root: true
       })
+      done()
     })
+  })
 
-    t.test('/prefix/inner', (t, d) => {
-      t.plan(2)
-      sget({
-        method: 'GET',
-        url: 'http://localhost:' + instance.server.address().port + '/prefix/inner',
-        json: true
-      }, (err, _response, body) => {
-        t.assert.ifError(err)
-        t.assert.deepStrictEqual(body, {
-          prefixed: true,
-          slashed: true,
-          global: true,
-          global2: true,
-          root: true
-        })
-        d()
-        done()
+  await t.test('/prefix/inner', (t, done) => {
+    t.plan(2)
+    sget({
+      method: 'GET',
+      url: address + '/prefix/inner',
+      json: true
+    }, (err, _response, body) => {
+      t.assert.ifError(err)
+      t.assert.deepStrictEqual(body, {
+        prefixed: true,
+        slashed: true,
+        global: true,
+        global2: true,
+        root: true
       })
+      done()
     })
   })
 })
