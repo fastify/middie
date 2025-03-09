@@ -300,8 +300,8 @@ test('Encapsulation support / 4', (t, done) => {
   }
 })
 
-test('Encapsulation support / 5', (t, done) => {
-  t.plan(10)
+test('Encapsulation support / 5', async t => {
+  t.plan(9)
 
   const fastify = Fastify()
 
@@ -334,36 +334,45 @@ test('Encapsulation support / 5', (t, done) => {
     reply.send('ok')
   })
 
-  fastify.listen({ port: 0 }, (err, address) => {
-    t.assert.ifError(err)
-    sget({
-      method: 'GET',
-      url: address + '/plugin/nested'
-    }, (err, res) => {
-      t.assert.ifError(err)
-      t.assert.strictEqual(res.headers['x-middleware-1'], 'true')
-      t.assert.strictEqual(res.headers['x-middleware-2'], 'true')
-      t.assert.strictEqual(res.headers['x-middleware-3'], 'true')
-    })
+  const address = await fastify.listen({ port: 0 })
 
-    sget({
-      method: 'GET',
-      url: address + '/plugin'
-    }, (err, res) => {
-      t.assert.ifError(err)
-      t.assert.strictEqual(res.headers['x-middleware-1'], 'true')
-      t.assert.strictEqual(res.headers['x-middleware-2'], 'true')
-    })
+  await Promise.all([
+    new Promise(resolve => {
+      sget({
+        method: 'GET',
+        url: address + '/plugin/nested'
+      }, (err, res) => {
+        t.assert.ifError(err)
+        t.assert.strictEqual(res.headers['x-middleware-1'], 'true')
+        t.assert.strictEqual(res.headers['x-middleware-2'], 'true')
+        t.assert.strictEqual(res.headers['x-middleware-3'], 'true')
+        resolve()
+      })
+    }),
 
-    sget({
-      method: 'GET',
-      url: address
-    }, (err, res) => {
-      t.assert.ifError(err)
-      t.assert.strictEqual(res.headers['x-middleware-1'], 'true')
-      done()
+    new Promise(resolve => {
+      sget({
+        method: 'GET',
+        url: address + '/plugin'
+      }, (err, res) => {
+        t.assert.ifError(err)
+        t.assert.strictEqual(res.headers['x-middleware-1'], 'true')
+        t.assert.strictEqual(res.headers['x-middleware-2'], 'true')
+        resolve()
+      })
+    }),
+
+    new Promise(resolve => {
+      sget({
+        method: 'GET',
+        url: address
+      }, (err, res) => {
+        t.assert.ifError(err)
+        t.assert.strictEqual(res.headers['x-middleware-1'], 'true')
+        resolve()
+      })
     })
-  })
+  ])
 
   function middleware1 (_req, res, next) {
     res.setHeader('x-middleware-1', true)
@@ -805,7 +814,7 @@ test('throw error when registering middie at onRequestAborted hook', async t => 
   const fastify = Fastify()
   t.after(() => fastify.close())
 
-  t.assert.rejects(async () => fastify.register(middiePlugin, {
+  await t.assert.rejects(async () => fastify.register(middiePlugin, {
     hook: 'onRequestAborted'
   }), new FST_ERR_MIDDIE_INVALID_HOOK('onRequestAborted')
   )
