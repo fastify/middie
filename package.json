@@ -69,7 +69,7 @@
     "neostandard": "^0.12.0",
     "serve-static": "^2.2.0",
     "simple-get": "^4.0.1",
-    "tsd": "^0.31.0"
+    "tsd": "^0.32.0"
   },
   "dependencies": {
     "@fastify/error": "^4.0.0",
