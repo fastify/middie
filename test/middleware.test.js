@@ -3,7 +3,6 @@
 // Original Fastify test/middlewares.test.js file
 
 const test = require('node:test')
-const sget = require('simple-get').concat
 const fastify = require('fastify')
 const fp = require('fastify-plugin')
 const cors = require('cors')
@@ -12,8 +11,8 @@ const fs = require('node:fs')
 
 const middiePlugin = require('../index')
 
-test('use a middleware', (t, done) => {
-  t.plan(7)
+test('use a middleware', async (t) => {
+  t.plan(6)
 
   const instance = fastify()
   instance.register(middiePlugin)
@@ -30,26 +29,24 @@ test('use a middleware', (t, done) => {
     reply.send({ hello: 'world' })
   })
 
-  instance.listen({ port: 0 }, err => {
-    t.assert.ifError(err)
+  const fastifyServerAddress = await instance.listen({ port: 0 })
 
-    t.after(() => instance.server.close())
+  t.after(() => instance.server.close())
 
-    sget({
-      method: 'GET',
-      url: 'http://localhost:' + instance.server.address().port
-    }, (err, response, body) => {
-      t.assert.ifError(err)
-      t.assert.strictEqual(response.statusCode, 200)
-      t.assert.strictEqual(response.headers['content-length'], '' + body.length)
-      t.assert.deepStrictEqual(JSON.parse(body), { hello: 'world' })
-      done()
-    })
+  const response = await fetch(fastifyServerAddress)
+
+  t.assert.strictEqual(response.status, 200)
+  t.assert.strictEqual(response.headers.get('content-length'), '' + (await response.text()).length)
+
+  const secondResponse = await fetch(fastifyServerAddress, {
+    method: 'GET'
   })
+  const body = await secondResponse.json()
+  t.assert.deepStrictEqual(body, { hello: 'world' })
 })
 
-test('use cors', (t, done) => {
-  t.plan(3)
+test('use cors', async (t) => {
+  t.plan(2)
 
   const instance = fastify()
   instance.register(middiePlugin)
@@ -61,24 +58,18 @@ test('use cors', (t, done) => {
     reply.send({ hello: 'world' })
   })
 
-  instance.listen({ port: 0 }, err => {
-    t.assert.ifError(err)
+  const fastifyServerAddress = await instance.listen({ port: 0 })
 
-    t.after(() => instance.server.close())
+  t.after(() => instance.server.close())
 
-    sget({
-      method: 'GET',
-      url: 'http://localhost:' + instance.server.address().port
-    }, (err, response) => {
-      t.assert.ifError(err)
-      t.assert.strictEqual(response.headers['access-control-allow-origin'], '*')
-      done()
-    })
-  })
+  const response = await fetch(fastifyServerAddress)
+
+  t.assert.ok(response.ok)
+  t.assert.strictEqual(response.headers.get('access-control-allow-origin'), '*')
 })
 
-test('use helmet', (t, done) => {
-  t.plan(3)
+test('use helmet', async (t) => {
+  t.plan(2)
 
   const instance = fastify()
   instance.register(middiePlugin)
@@ -90,24 +81,18 @@ test('use helmet', (t, done) => {
     reply.send({ hello: 'world' })
   })
 
-  instance.listen({ port: 0 }, err => {
-    t.assert.ifError(err)
+  const fastifyServerAddress = await instance.listen({ port: 0 })
 
-    t.after(() => instance.server.close())
+  t.after(() => instance.server.close())
 
-    sget({
-      method: 'GET',
-      url: 'http://localhost:' + instance.server.address().port
-    }, (err, response) => {
-      t.assert.ifError(err)
-      t.assert.ok(response.headers['x-xss-protection'])
-      done()
-    })
-  })
+  const response = await fetch(fastifyServerAddress)
+
+  t.assert.ok(response.ok)
+  t.assert.ok(response.headers.get('x-xss-protection'))
 })
 
-test('use helmet and cors', (t, done) => {
-  t.plan(4)
+test('use helmet and cors', async (t) => {
+  t.plan(3)
 
   const instance = fastify()
   instance.register(middiePlugin)
@@ -120,21 +105,15 @@ test('use helmet and cors', (t, done) => {
     reply.send({ hello: 'world' })
   })
 
-  instance.listen({ port: 0 }, err => {
-    t.assert.ifError(err)
+  const fastifyServerAddress = await instance.listen({ port: 0 })
 
-    t.after(() => instance.server.close())
+  t.after(() => instance.server.close())
 
-    sget({
-      method: 'GET',
-      url: 'http://localhost:' + instance.server.address().port
-    }, (err, response) => {
-      t.assert.ifError(err)
-      t.assert.ok(response.headers['x-xss-protection'])
-      t.assert.strictEqual(response.headers['access-control-allow-origin'], '*')
-      done()
-    })
-  })
+  const response = await fetch(fastifyServerAddress)
+
+  t.assert.ok(response.ok)
+  t.assert.ok(response.headers.get('x-xss-protection'))
+  t.assert.strictEqual(response.headers.get('access-control-allow-origin'), '*')
 })
 
 test('middlewares with prefix', async t => {
@@ -180,80 +159,60 @@ test('middlewares with prefix', async t => {
   instance.get('/prefix/', handler)
   instance.get('/prefix/inner', handler)
 
-  const address = await instance.listen({ port: 0 })
+  const fastifyServerAddress = await instance.listen({ port: 0 })
   t.after(() => instance.server.close())
 
-  await t.test('/', (t, done) => {
+  await t.test('/', async (t) => {
     t.plan(2)
-    sget({
-      method: 'GET',
-      url: address + '/',
-      json: true
-    }, (err, _response, body) => {
-      t.assert.ifError(err)
-      t.assert.deepStrictEqual(body, {
-        global: true,
-        global2: true,
-        root: true
-      })
-      done()
+    const response = await fetch(fastifyServerAddress)
+    t.assert.ok(response.ok)
+    const body = await response.json()
+    t.assert.deepStrictEqual(body, {
+      global: true,
+      global2: true,
+      root: true
     })
   })
 
-  await t.test('/prefix', (t, done) => {
+  await t.test('/prefix', async (t) => {
     t.plan(2)
-    sget({
-      method: 'GET',
-      url: address + '/prefix',
-      json: true
-    }, (err, _response, body) => {
-      t.assert.ifError(err)
-      t.assert.deepStrictEqual(body, {
-        prefixed: true,
-        global: true,
-        global2: true,
-        root: true,
-        slashed: true
-      })
-      done()
+    const response = await fetch(fastifyServerAddress + '/prefix')
+    t.assert.ok(response.ok)
+    const body = await response.json()
+    t.assert.deepStrictEqual(body, {
+      prefixed: true,
+      global: true,
+      global2: true,
+      root: true,
+      slashed: true
     })
   })
 
-  await t.test('/prefix/', (t, done) => {
+  await t.test('/prefix/', async (t) => {
     t.plan(2)
-    sget({
-      method: 'GET',
-      url: address + '/prefix/',
-      json: true
-    }, (err, _response, body) => {
-      t.assert.ifError(err)
-      t.assert.deepStrictEqual(body, {
-        prefixed: true,
-        slashed: true,
-        global: true,
-        global2: true,
-        root: true
-      })
-      done()
+    const response = await fetch(fastifyServerAddress + '/prefix/')
+    t.assert.ok(response.ok)
+    const body = await response.json()
+    t.assert.deepStrictEqual(body, {
+      prefixed: true,
+      slashed: true,
+      global: true,
+      global2: true,
+      root: true
     })
   })
 
-  await t.test('/prefix/inner', (t, done) => {
+  await t.test('/prefix/inner', async (t) => {
     t.plan(2)
-    sget({
-      method: 'GET',
-      url: address + '/prefix/inner',
-      json: true
-    }, (err, _response, body) => {
-      t.assert.ifError(err)
-      t.assert.deepStrictEqual(body, {
-        prefixed: true,
-        slashed: true,
-        global: true,
-        global2: true,
-        root: true
-      })
-      done()
+    const response = await fetch(fastifyServerAddress + '/prefix/inner')
+    t.assert.ok(response.ok)
+    const body = await response.json()
+    t.assert.deepStrictEqual(body, {
+      prefixed: true,
+      slashed: true,
+      global: true,
+      global2: true,
+      root: true
     })
   })
 })
