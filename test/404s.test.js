@@ -3,11 +3,10 @@
 const { test } = require('node:test')
 const fp = require('fastify-plugin')
 const Fastify = require('fastify')
-const sget = require('simple-get').concat
 const middiePlugin = require('../index')
 
-test('run hooks and middleware on default 404', (t, done) => {
-  t.plan(8)
+test('run hooks and middleware on default 404', async (t) => {
+  t.plan(7)
 
   const fastify = Fastify()
 
@@ -46,24 +45,20 @@ test('run hooks and middleware on default 404', (t, done) => {
 
   t.after(() => fastify.close())
 
-  fastify.listen({ port: 0 }, err => {
-    t.assert.ifError(err)
+  const fastifyServerAddress = await fastify.listen({ port: 0 })
 
-    sget({
-      method: 'PUT',
-      url: 'http://localhost:' + fastify.server.address().port,
-      body: JSON.stringify({ hello: 'world' }),
-      headers: { 'Content-Type': 'application/json' }
-    }, (err, response) => {
-      t.assert.ifError(err)
-      t.assert.strictEqual(response.statusCode, 404)
-      done()
-    })
+  const result = await fetch(fastifyServerAddress, {
+    method: 'PUT',
+    body: JSON.stringify({ hello: 'world' }),
+    headers: { 'Content-Type': 'application/json' }
   })
+
+  t.assert.ok(!result.ok)
+  t.assert.strictEqual(result.status, 404)
 })
 
-test('run non-encapsulated plugin hooks and middleware on default 404', (t, done) => {
-  t.plan(8)
+test('run non-encapsulated plugin hooks and middleware on default 404', async (t) => {
+  t.plan(7)
 
   const fastify = Fastify()
   t.after(() => fastify.close())
@@ -102,23 +97,20 @@ test('run non-encapsulated plugin hooks and middleware on default 404', (t, done
     reply.send({ hello: 'world' })
   })
 
-  fastify.listen({ port: 0 }, (err, address) => {
-    t.assert.ifError(err)
-    sget({
-      method: 'POST',
-      url: address,
-      body: JSON.stringify({ hello: 'world' }),
-      headers: { 'Content-Type': 'application/json' }
-    }, (err, response) => {
-      t.assert.ifError(err)
-      t.assert.strictEqual(response.statusCode, 404)
-      done()
-    })
+  const address = await fastify.listen({ port: 0 })
+
+  const response = await fetch(address, {
+    method: 'POST',
+    body: JSON.stringify({ hello: 'world' }),
+    headers: { 'Content-Type': 'application/json' }
   })
+
+  t.assert.ok(!response.ok)
+  t.assert.strictEqual(response.status, 404)
 })
 
-test('run non-encapsulated plugin hooks and middleware on custom 404', (t, done) => {
-  t.plan(14)
+test('run non-encapsulated plugin hooks and middleware on custom 404', async (t) => {
+  t.plan(13)
 
   const fastify = Fastify()
   t.after(() => fastify.close())
@@ -165,22 +157,20 @@ test('run non-encapsulated plugin hooks and middleware on custom 404', (t, done)
 
   fastify.register(plugin) // Registering plugin after handler also works
 
-  fastify.listen({ port: 0 }, (err, address) => {
-    t.assert.ifError(err)
-    sget({
-      method: 'GET',
-      url: address + '/not-found'
-    }, (err, response, body) => {
-      t.assert.ifError(err)
-      t.assert.strictEqual(body.toString(), 'this was not found')
-      t.assert.strictEqual(response.statusCode, 404)
-      done()
-    })
+  const address = await fastify.listen({ port: 0 })
+
+  const response = await fetch(address + '/not-found', {
+    method: 'GET'
   })
+
+  const body = await response.text()
+  t.assert.strictEqual(body, 'this was not found')
+  t.assert.ok(!response.ok)
+  t.assert.strictEqual(response.status, 404)
 })
 
-test('run hooks and middleware with encapsulated 404', (t, done) => {
-  t.plan(13)
+test('run hooks and middleware with encapsulated 404', async (t) => {
+  t.plan(12)
 
   const fastify = Fastify()
 
@@ -248,24 +238,20 @@ test('run hooks and middleware with encapsulated 404', (t, done) => {
 
   t.after(() => fastify.close())
 
-  fastify.listen({ port: 0 }, err => {
-    t.assert.ifError(err)
+  const address = await fastify.listen({ port: 0 })
 
-    sget({
-      method: 'PUT',
-      url: 'http://localhost:' + fastify.server.address().port + '/test',
-      body: JSON.stringify({ hello: 'world' }),
-      headers: { 'Content-Type': 'application/json' }
-    }, (err, response) => {
-      t.assert.ifError(err)
-      t.assert.strictEqual(response.statusCode, 404)
-      done()
-    })
+  const response = await fetch(address + '/test', {
+    method: 'PUT',
+    body: JSON.stringify({ hello: 'world' }),
+    headers: { 'Content-Type': 'application/json' }
   })
+
+  t.assert.ok(!response.ok)
+  t.assert.strictEqual(response.status, 404)
 })
 
-test('run middlewares on default 404', (t, done) => {
-  t.plan(4)
+test('run middlewares on default 404', async (t) => {
+  t.plan(3)
 
   const fastify = Fastify()
   fastify
@@ -283,24 +269,20 @@ test('run middlewares on default 404', (t, done) => {
 
   t.after(() => fastify.close())
 
-  fastify.listen({ port: 0 }, err => {
-    t.assert.ifError(err)
+  const address = await fastify.listen({ port: 0 })
 
-    sget({
-      method: 'PUT',
-      url: 'http://localhost:' + fastify.server.address().port,
-      body: JSON.stringify({ hello: 'world' }),
-      headers: { 'Content-Type': 'application/json' }
-    }, (err, response) => {
-      t.assert.ifError(err)
-      t.assert.strictEqual(response.statusCode, 404)
-      done()
-    })
+  const response = await fetch(address, {
+    method: 'PUT',
+    body: JSON.stringify({ hello: 'world' }),
+    headers: { 'Content-Type': 'application/json' }
   })
+
+  t.assert.ok(!response.ok)
+  t.assert.strictEqual(response.status, 404)
 })
 
-test('run middlewares with encapsulated 404', (t, done) => {
-  t.plan(5)
+test('run middlewares with encapsulated 404', async (t) => {
+  t.plan(4)
 
   const fastify = Fastify()
   fastify
@@ -327,18 +309,14 @@ test('run middlewares with encapsulated 404', (t, done) => {
 
   t.after(() => fastify.close())
 
-  fastify.listen({ port: 0 }, err => {
-    t.assert.ifError(err)
+  const address = await fastify.listen({ port: 0 })
 
-    sget({
-      method: 'PUT',
-      url: 'http://localhost:' + fastify.server.address().port + '/test',
-      body: JSON.stringify({ hello: 'world' }),
-      headers: { 'Content-Type': 'application/json' }
-    }, (err, response) => {
-      t.assert.ifError(err)
-      t.assert.strictEqual(response.statusCode, 404)
-      done()
-    })
+  const response = await fetch(address + '/test', {
+    method: 'PUT',
+    body: JSON.stringify({ hello: 'world' }),
+    headers: { 'Content-Type': 'application/json' }
   })
+
+  t.assert.ok(!response.ok)
+  t.assert.strictEqual(response.status, 404)
 })

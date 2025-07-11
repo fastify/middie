@@ -2,13 +2,12 @@
 
 const { test } = require('node:test')
 const Fastify = require('fastify')
-const sget = require('simple-get').concat
 const cors = require('cors')
 
 const middiePlugin = require('../index')
 
-test('Should enhance the Node.js core request/response objects', (t, done) => {
-  t.plan(14)
+test('Should enhance the Node.js core request/response objects', async (t) => {
+  t.plan(13)
   const fastify = Fastify()
   t.after(() => fastify.close())
 
@@ -32,25 +31,18 @@ test('Should enhance the Node.js core request/response objects', (t, done) => {
     return { hello: 'world' }
   })
 
-  fastify.listen({ port: 0 }, (err, address) => {
-    t.assert.ifError(err)
-    sget(
-      {
-        method: 'POST',
-        url: `${address}?foo=bar`,
-        body: { bar: 'foo' },
-        json: true
-      },
-      (err) => {
-        t.assert.ifError(err)
-        done()
-      }
-    )
+  const fastifyServerAddress = await fastify.listen({ port: 0 })
+
+  const result = await fetch(`${fastifyServerAddress}?foo=bar`, {
+    method: 'POST',
+    body: JSON.stringify({ bar: 'foo' }),
+    headers: { 'Content-Type': 'application/json' }
   })
+  t.assert.ok(result.ok)
 })
 
-test('Should not enhance the Node.js core request/response objects when there are no middlewares', (t, done) => {
-  t.plan(11)
+test('Should not enhance the Node.js core request/response objects when there are no middlewares', async (t) => {
+  t.plan(10)
   const fastify = Fastify()
   t.after(() => fastify.close())
 
@@ -69,25 +61,18 @@ test('Should not enhance the Node.js core request/response objects when there ar
     return { hello: 'world' }
   })
 
-  fastify.listen({ port: 0 }, (err, address) => {
-    t.assert.ifError(err)
-    sget(
-      {
-        method: 'POST',
-        url: `${address}?foo=bar`,
-        body: { bar: 'foo' },
-        json: true
-      },
-      (err) => {
-        t.assert.ifError(err)
-        done()
-      }
-    )
+  const fastifyServerAddress = await fastify.listen({ port: 0 })
+
+  const result = await fetch(`${fastifyServerAddress}?foo=bar`, {
+    method: 'POST',
+    body: JSON.stringify({ bar: 'foo' }),
+    headers: { 'Content-Type': 'application/json' }
   })
+  t.assert.ok(result.ok)
 })
 
-test('If the enhanced response body is undefined, the body key should not exist', (t, done) => {
-  t.plan(3)
+test('If the enhanced response body is undefined, the body key should not exist', async (t) => {
+  t.plan(2)
   const fastify = Fastify()
   t.after(() => fastify.close())
 
@@ -99,17 +84,10 @@ test('If the enhanced response body is undefined, the body key should not exist'
     })
   })
 
-  fastify.listen({ port: 0 }, (err, address) => {
-    t.assert.ifError(err)
-    sget(
-      {
-        method: 'POST',
-        url: `${address}?foo=bar`
-      },
-      (err) => {
-        t.assert.ifError(err)
-        done()
-      }
-    )
+  const fastifyServerAddress = await fastify.listen({ port: 0 })
+
+  const result = await fetch(`${fastifyServerAddress}?foo=bar`, {
+    method: 'POST'
   })
+  t.assert.ok(!result.ok)
 })
