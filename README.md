@@ -160,9 +160,15 @@ async function subsystem (fastify, opts) {
   fastify.use(['/css', '/js'], serveStatic(path.join(__dirname, '/assets')))
 
   // Catch all routes so that Fastify will call the middlewares above
-  fastify.all('/css', () => {})
-  fastify.all('/css/*', () => {})
-  fastify.all('/js', () => {})
+  fastify.all('/css', () => {
+    return reply
+  })
+  fastify.all('/css/*', () => {
+    return reply
+  })
+  fastify.all('/js', () => {
+    return reply
+  })
 }
 ```
 
@@ -179,8 +185,10 @@ fastify
 async function subsystem (fastify, opts) {
   fastify.use(serveStatic(path.join(__dirname, '/assets')))
 
-  // Catch all routes so that Fastify will call the middleware above
-  fastify.all('*', () => {})
+  // Catch all route so that Fastify will call the middleware above
+  fastify.all('*', () => {
+    return reply
+  })
 }
 ```
 
