@@ -7,7 +7,7 @@
 *@fastify/middie* is the plugin that adds middleware support on steroids to [Fastify](https://www.npmjs.com/package/fastify).
 
 The syntax style is the same as [connect](https://www.npmjs.com/package/connect).
-But it does not provide full compatbility with [express](http://npm.im/express) which has its own extended request/response objects, see [@fastify/express] if that is needed.
+But it does not provide full compatbility with [express](http://npm.im/express) which has its own extended request/response objects, see [@fastify/express](https://github.com/fastify/fastify-express) if that is needed.
 Does not support the full syntax `middleware(err, req, res, next)`, because error handling is done inside Fastify.
 
 ## Install
