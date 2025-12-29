@@ -217,6 +217,40 @@ test('middlewares with prefix', async t => {
   })
 })
 
+test('middlewares for encoded paths', async t => {
+  t.plan(1)
+
+  const instance = fastify()
+  instance.register(middiePlugin)
+    .after(() => {
+      instance.use('/encoded', function (req, _res, next) {
+        req.slashed = true
+        next()
+      })
+    })
+
+  function handler (request, reply) {
+    reply.send({
+      slashed: request.raw.slashed,
+    })
+  }
+
+  instance.get('/encoded', handler)
+
+  const fastifyServerAddress = await instance.listen({ port: 0 })
+  t.after(() => instance.server.close())
+
+  await t.test('/%65ncod%65d', async (t) => {
+    t.plan(2)
+    const response = await fetch(fastifyServerAddress + '/%65ncod%65d') // '/encoded'
+    t.assert.ok(response.ok)
+    const body = await response.json()
+    t.assert.deepStrictEqual(body, {
+      slashed: true
+    })
+  })
+})
+
 test('res.end should block middleware execution', (t, done) => {
   t.plan(4)
 
