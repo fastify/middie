@@ -72,7 +72,7 @@
   "dependencies": {
     "@fastify/error": "^4.0.0",
     "fastify-plugin": "^5.0.0",
-    "find-my-way": "^9.3.0",
+    "find-my-way": "^9.4.0",
     "path-to-regexp": "^8.1.0",
     "reusify": "^1.0.4"
   },
