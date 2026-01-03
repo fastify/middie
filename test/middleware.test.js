@@ -217,6 +217,53 @@ test('middlewares with prefix', async t => {
   })
 })
 
+test('middlewares for encoded paths', async t => {
+  t.plan(2)
+
+  const instance = fastify()
+  instance.register(middiePlugin)
+    .after(() => {
+      instance.use('/encoded', function (req, _res, next) {
+        req.slashed = true
+        next()
+      })
+      instance.use('/%65ncoded', function (req, _res, next) {
+        req.slashedSpecial = true
+        next()
+      })
+    })
+
+  function handler (request, reply) {
+    reply.send({
+      slashed: request.raw.slashed,
+      slashedSpecial: request.raw.slashedSpecial
+    })
+  }
+
+  instance.get('/encoded', handler)
+  instance.get('/%65ncoded', handler)
+
+  const fastifyServerAddress = await instance.listen({ port: 0 })
+  t.after(() => instance.server.close())
+
+  await t.test('decode the request url and run the middleware', async (t) => {
+    t.plan(2)
+    const response = await fetch(fastifyServerAddress + '/%65ncod%65d') // '/encoded'
+    t.assert.ok(response.ok)
+    const body = await response.json()
+    t.assert.deepStrictEqual(body, { slashed: true })
+  })
+
+  await t.test('does not double decode the url', async (t) => {
+    t.plan(2)
+    const response = await fetch(fastifyServerAddress + '/%2565ncoded')
+    const body = await response.json()
+
+    t.assert.ok(response.ok)
+    t.assert.deepStrictEqual(body, { slashedSpecial: true })
+  })
+})
+
 test('res.end should block middleware execution', (t, done) => {
   t.plan(4)
 
