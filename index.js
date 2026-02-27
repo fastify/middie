@@ -28,7 +28,13 @@ function fastifyMiddie (fastify, options, next) {
   fastify.decorate('use', use)
   fastify[kMiddlewares] = []
   fastify[kMiddieHasMiddlewares] = false
-  fastify[kMiddie] = Middie(onMiddieEnd)
+  const routerOptions = fastify.initialConfig?.routerOptions || {}
+
+  fastify[kMiddie] = Middie(onMiddieEnd, {
+    ignoreDuplicateSlashes: routerOptions.ignoreDuplicateSlashes,
+    useSemicolonDelimiter: routerOptions.useSemicolonDelimiter,
+    ignoreTrailingSlash: routerOptions.ignoreTrailingSlash
+  })
 
   const hook = options.hook || 'onRequest'
 
@@ -87,7 +93,12 @@ function fastifyMiddie (fastify, options, next) {
   function onRegister (instance) {
     const middlewares = instance[kMiddlewares].slice()
     instance[kMiddlewares] = []
-    instance[kMiddie] = Middie(onMiddieEnd)
+    const instanceRouterOptions = (instance.initialConfig && instance.initialConfig.routerOptions) || {}
+    instance[kMiddie] = Middie(onMiddieEnd, {
+      ignoreDuplicateSlashes: instanceRouterOptions.ignoreDuplicateSlashes,
+      useSemicolonDelimiter: instanceRouterOptions.useSemicolonDelimiter,
+      ignoreTrailingSlash: instanceRouterOptions.ignoreTrailingSlash
+    })
     instance[kMiddieHasMiddlewares] = false
     instance.decorate('use', use)
     for (const middleware of middlewares) {
