@@ -112,6 +112,37 @@ test('req.url stripping with trailing slash', async (t) => {
   t.assert.strictEqual(capturedUrl, '/data', '/secret/data/ should strip to /data')
 })
 
+test('req.url stripping preserves query string', async (t) => {
+  const app = Fastify()
+  t.after(() => app.close())
+
+  await app.register(middiePlugin)
+
+  let capturedUrl = null
+
+  app.use('/api', (req, _res, next) => {
+    capturedUrl = req.url
+    next()
+  })
+
+  app.get('/api/resource', async () => ({ ok: true }))
+
+  // Query string should be preserved after prefix stripping
+  capturedUrl = null
+  await app.inject({ method: 'GET', url: '/api/resource?foo=bar&baz=qux' })
+  t.assert.strictEqual(capturedUrl, '/resource?foo=bar&baz=qux', 'query string should be preserved')
+
+  // Simple query string
+  capturedUrl = null
+  await app.inject({ method: 'GET', url: '/api/resource?key=value' })
+  t.assert.strictEqual(capturedUrl, '/resource?key=value', 'simple query string should be preserved')
+
+  // No query string should still work
+  capturedUrl = null
+  await app.inject({ method: 'GET', url: '/api/resource' })
+  t.assert.strictEqual(capturedUrl, '/resource', 'no query string should work normally')
+})
+
 test('req.url stripping with all normalization options combined', async (t) => {
   const app = Fastify({
     routerOptions: {
