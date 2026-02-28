@@ -143,3 +143,60 @@ test('req.url stripping with all normalization options combined', async (t) => {
   await app.inject({ method: 'GET', url: '//secret//data//' })
   t.assert.strictEqual(capturedUrl, '/data', '//secret//data// should strip to /data')
 })
+
+test('req.url stripping preserves query string', async (t) => {
+  const app = Fastify()
+  t.after(() => app.close())
+
+  await app.register(middiePlugin)
+
+  let capturedUrl = null
+
+  app.use('/api', (req, _res, next) => {
+    capturedUrl = req.url
+    next()
+  })
+
+  app.get('/api/resource', async () => ({ ok: true }))
+
+  capturedUrl = null
+  await app.inject({ method: 'GET', url: '/api/resource?foo=bar' })
+  t.assert.strictEqual(capturedUrl, '/resource?foo=bar', 'single query param preserved')
+
+  capturedUrl = null
+  await app.inject({ method: 'GET', url: '/api/resource?foo=bar&baz=qux' })
+  t.assert.strictEqual(capturedUrl, '/resource?foo=bar&baz=qux', 'multiple query params preserved')
+
+  capturedUrl = null
+  await app.inject({ method: 'GET', url: '/api/resource?a=1&b=2&c=3' })
+  t.assert.strictEqual(capturedUrl, '/resource?a=1&b=2&c=3', 'many query params preserved')
+})
+
+test('req.url stripping preserves query string with normalization options', async (t) => {
+  const app = Fastify({
+    routerOptions: {
+      ignoreDuplicateSlashes: true,
+      ignoreTrailingSlash: true
+    }
+  })
+  t.after(() => app.close())
+
+  await app.register(middiePlugin)
+
+  let capturedUrl = null
+
+  app.use('/secret', (req, _res, next) => {
+    capturedUrl = req.url
+    next()
+  })
+
+  app.get('/secret/data', async () => ({ ok: true }))
+
+  capturedUrl = null
+  await app.inject({ method: 'GET', url: '//secret/data?key=value' })
+  t.assert.strictEqual(capturedUrl, '/data?key=value', '//secret/data?key=value preserves query string')
+
+  capturedUrl = null
+  await app.inject({ method: 'GET', url: '/secret//data/?key=value' })
+  t.assert.strictEqual(capturedUrl, '/data?key=value', '/secret//data/?key=value preserves query string')
+})
