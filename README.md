@@ -6,7 +6,8 @@
 
 *@fastify/middie* is the plugin that adds middleware support on steroids to [Fastify](https://www.npmjs.com/package/fastify).
 
-The syntax style is the same as [express](http://npm.im/express)/[connect](https://www.npmjs.com/package/connect).
+The syntax style is the same as [connect](https://www.npmjs.com/package/connect).
+But it does not provide full compatbility with [express](http://npm.im/express) which has its own extended request/response objects, see [@fastify/express](https://github.com/fastify/fastify-express) if that is needed.
 Does not support the full syntax `middleware(err, req, res, next)`, because error handling is done inside Fastify.
 
 ## Install
@@ -157,6 +158,37 @@ async function subsystem (fastify, opts) {
 
   // Multiple paths
   fastify.use(['/css', '/js'], serveStatic(path.join(__dirname, '/assets')))
+
+  // Catch all routes so that Fastify will call the middlewares above
+  fastify.all('/css', (request, reply) => {
+    return reply
+  })
+  fastify.all('/css/*', (request, reply) => {
+    return reply
+  })
+  fastify.all('/js', (request, reply) => {
+    return reply
+  })
+}
+```
+
+### Usage with middlewares that act as routes
+A middleware that is designed to act as a route handler rather than wrap existing routes will require a catch all route in Fastify so that the middleware gets called.
+
+```js
+const fastify = require('fastify')()
+
+fastify
+  .register(require('@fastify/middie'))
+  .register(subsystem)
+
+async function subsystem (fastify, opts) {
+  fastify.use(serveStatic(path.join(__dirname, '/assets')))
+
+  // Catch all route so that Fastify will call the middleware above
+  fastify.all('*', () => {
+    return reply
+  })
 }
 ```
 
