@@ -4,6 +4,38 @@ const { test } = require('node:test')
 const Fastify = require('fastify')
 const middiePlugin = require('../index')
 
+test('req.url stripping preserves percent-encoded characters', async (t) => {
+  const app = Fastify()
+  t.after(() => app.close())
+
+  await app.register(middiePlugin)
+
+  let capturedUrl = null
+
+  app.use('/prefix', (req, _res, next) => {
+    capturedUrl = req.url
+    next()
+  })
+
+  app.get('/prefix/*', async () => ({ ok: true }))
+
+  capturedUrl = null
+  await app.inject({ method: 'GET', url: '/prefix/hello%20world' })
+  t.assert.strictEqual(capturedUrl, '/hello%20world', 'percent-encoded space preserved')
+
+  capturedUrl = null
+  await app.inject({ method: 'GET', url: '/prefix/hello%20world%2Ffoo' })
+  t.assert.strictEqual(capturedUrl, '/hello%20world%2Ffoo', 'percent-encoded slash preserved')
+
+  capturedUrl = null
+  await app.inject({ method: 'GET', url: '/prefix/path%2Fwith%2Fslashes' })
+  t.assert.strictEqual(capturedUrl, '/path%2Fwith%2Fslashes', 'multiple percent-encoded slashes preserved')
+
+  capturedUrl = null
+  await app.inject({ method: 'GET', url: '/prefix/%E4%B8%AD%E6%96%87' })
+  t.assert.strictEqual(capturedUrl, '/%E4%B8%AD%E6%96%87', 'percent-encoded unicode preserved')
+})
+
 test('req.url stripping with duplicate slashes', async (t) => {
   const app = Fastify({
     routerOptions: {
