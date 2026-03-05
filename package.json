@@ -1,6 +1,6 @@
 {
   "name": "@fastify/middie",
-  "version": "9.2.0",
+  "version": "9.3.0",
   "description": "Middleware engine for Fastify",
   "main": "index.js",
   "type": "commonjs",
