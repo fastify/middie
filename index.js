@@ -24,17 +24,23 @@ const supportedHooksWithoutPayload = [
 
 const supportedHooks = [...supportedHooksWithPayload, ...supportedHooksWithoutPayload]
 
+function resolveNormalizationOptions (instance) {
+  const initialConfig = instance.initialConfig || {}
+  const routerOptions = initialConfig.routerOptions || {}
+
+  return {
+    ignoreDuplicateSlashes: routerOptions.ignoreDuplicateSlashes ?? initialConfig.ignoreDuplicateSlashes,
+    useSemicolonDelimiter: routerOptions.useSemicolonDelimiter ?? initialConfig.useSemicolonDelimiter,
+    ignoreTrailingSlash: routerOptions.ignoreTrailingSlash ?? initialConfig.ignoreTrailingSlash
+  }
+}
+
 function fastifyMiddie (fastify, options, next) {
   fastify.decorate('use', use)
   fastify[kMiddlewares] = []
   fastify[kMiddieHasMiddlewares] = false
-  const routerOptions = fastify.initialConfig?.routerOptions || {}
 
-  fastify[kMiddie] = Middie(onMiddieEnd, {
-    ignoreDuplicateSlashes: routerOptions.ignoreDuplicateSlashes,
-    useSemicolonDelimiter: routerOptions.useSemicolonDelimiter,
-    ignoreTrailingSlash: routerOptions.ignoreTrailingSlash
-  })
+  fastify[kMiddie] = Middie(onMiddieEnd, resolveNormalizationOptions(fastify))
 
   const hook = options.hook || 'onRequest'
 
@@ -93,12 +99,7 @@ function fastifyMiddie (fastify, options, next) {
   function onRegister (instance) {
     const middlewares = instance[kMiddlewares].slice()
     instance[kMiddlewares] = []
-    const instanceRouterOptions = (instance.initialConfig && instance.initialConfig.routerOptions) || {}
-    instance[kMiddie] = Middie(onMiddieEnd, {
-      ignoreDuplicateSlashes: instanceRouterOptions.ignoreDuplicateSlashes,
-      useSemicolonDelimiter: instanceRouterOptions.useSemicolonDelimiter,
-      ignoreTrailingSlash: instanceRouterOptions.ignoreTrailingSlash
-    })
+    instance[kMiddie] = Middie(onMiddieEnd, resolveNormalizationOptions(instance))
     instance[kMiddieHasMiddlewares] = false
     instance.decorate('use', use)
     for (const middleware of middlewares) {

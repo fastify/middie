@@ -743,3 +743,26 @@ test('throw error when registering middie at onRequestAborted hook', async t => 
   }), new FST_ERR_MIDDIE_INVALID_HOOK('onRequestAborted')
   )
 })
+
+test('fastifyMiddie supports instances without initialConfig', (t) => {
+  const { fastifyMiddie } = require('../index')
+  const hooks = []
+  const fakeFastify = {
+    decorate (name, value) {
+      this[name] = value
+      return this
+    },
+    addHook (name, fn) {
+      hooks.push([name, fn])
+      return this
+    }
+  }
+
+  fastifyMiddie(fakeFastify, {}, (err) => {
+    t.assert.ifError(err)
+  })
+
+  t.assert.strictEqual(typeof fakeFastify.use, 'function')
+  t.assert.ok(hooks.some(([name]) => name === 'onRequest'))
+  t.assert.ok(hooks.some(([name]) => name === 'onRegister'))
+})
