@@ -458,3 +458,321 @@ test('middlewares should run in the order in which they are defined', (t, done) 
     done()
   })
 })
+
+test('should not double-prefix inherited middleware paths in child scopes', async t => {
+  t.plan(4)
+
+  const instance = fastify()
+  t.after(() => instance.close())
+
+  await instance.register(middiePlugin)
+
+  instance.use('/admin', function (req, res, next) {
+    if (req.headers.authorization == null) {
+      res.statusCode = 403
+      res.end('forbidden')
+      return
+    }
+
+    next()
+  })
+
+  instance.get('/admin/root-data', async function () {
+    return { data: 'root-secret' }
+  })
+
+  await instance.register(async function (child) {
+    child.get('/secret', async function (req) {
+      return { data: 'child-secret' }
+    })
+  }, { prefix: '/admin' })
+
+  const address = await instance.listen({ port: 0 })
+
+  const rootNoAuth = await fetch(address + '/admin/root-data')
+  t.assert.deepStrictEqual(rootNoAuth.status, 403)
+
+  const childNoAuth = await fetch(address + '/admin/secret')
+  t.assert.deepStrictEqual(childNoAuth.status, 403)
+
+  const childWithAuth = await fetch(address + '/admin/secret', {
+    headers: {
+      authorization: 'Bearer test'
+    }
+  })
+
+  t.assert.deepStrictEqual(childWithAuth.status, 200)
+  t.assert.deepStrictEqual(await childWithAuth.json(), { data: 'child-secret' })
+})
+
+test('should allow child scopes register middleware with same prefix', async t => {
+  t.plan(7)
+
+  const instance = fastify()
+  t.after(() => instance.close())
+
+  await instance.register(middiePlugin)
+
+  const count = { admin: 0, child: 0 }
+
+  instance.use('/admin', function (req, res, next) {
+    count.admin++
+    next()
+  })
+
+  instance.get('/admin/root-data', async function () {
+    return { data: 'admin' }
+  })
+
+  await instance.register(async function (child) {
+    child.use('/admin', function (req, res, next) {
+      count.child++
+      next()
+    })
+
+    child.get('/secret', async function (req) {
+      return { data: 'child' }
+    })
+
+    child.get('/admin', async function (req) {
+      return { data: 'child-admin' }
+    })
+  }, { prefix: '/admin' })
+
+  const address = await instance.listen({ port: 0 })
+
+  const root = await fetch(address + '/admin/root-data')
+  t.assert.deepStrictEqual(root.status, 200)
+  t.assert.deepStrictEqual(await root.json(), { data: 'admin' })
+
+  const child = await fetch(address + '/admin/secret')
+  t.assert.deepStrictEqual(child.status, 200)
+  t.assert.deepStrictEqual(await child.json(), { data: 'child' })
+
+  const childAdmin = await fetch(address + '/admin/admin')
+  t.assert.deepStrictEqual(childAdmin.status, 200)
+  t.assert.deepStrictEqual(await childAdmin.json(), { data: 'child-admin' })
+
+  t.assert.deepStrictEqual(count, { admin: 3, child: 1 })
+})
+
+test('should enforce inherited middleware in nested grandchild scopes', async t => {
+  t.plan(6)
+
+  const instance = fastify()
+  t.after(() => instance.close())
+
+  await instance.register(middiePlugin)
+
+  instance.use('/admin', function (req, res, next) {
+    if (req.headers.authorization == null) {
+      res.statusCode = 403
+      res.end('forbidden')
+      return
+    }
+
+    next()
+  })
+
+  instance.get('/admin/root-data', async function () {
+    return { data: 'root-secret' }
+  })
+
+  await instance.register(async function (parent) {
+    parent.get('/info', async function () {
+      return { data: 'parent-info' }
+    })
+
+    await parent.register(async function (grandchild) {
+      grandchild.get('/deep', async function () {
+        return { data: 'nested-secret' }
+      })
+    }, { prefix: '/sub' })
+  }, { prefix: '/admin' })
+
+  const address = await instance.listen({ port: 0 })
+
+  const rootNoAuth = await fetch(address + '/admin/root-data')
+  t.assert.deepStrictEqual(rootNoAuth.status, 403)
+
+  const parentNoAuth = await fetch(address + '/admin/info')
+  t.assert.deepStrictEqual(parentNoAuth.status, 403)
+
+  const grandchildNoAuth = await fetch(address + '/admin/sub/deep')
+  t.assert.deepStrictEqual(grandchildNoAuth.status, 403)
+
+  const grandchildWithAuth = await fetch(address + '/admin/sub/deep', {
+    headers: { authorization: 'Bearer test' }
+  })
+  t.assert.deepStrictEqual(grandchildWithAuth.status, 200)
+  t.assert.deepStrictEqual(await grandchildWithAuth.json(), { data: 'nested-secret' })
+
+  const parentWithAuth = await fetch(address + '/admin/info', {
+    headers: { authorization: 'Bearer test' }
+  })
+  t.assert.deepStrictEqual(parentWithAuth.status, 200)
+})
+
+test('should enforce inherited middleware across three nesting levels', async t => {
+  t.plan(3)
+
+  const instance = fastify()
+  t.after(() => instance.close())
+
+  await instance.register(middiePlugin)
+
+  instance.use('/api', function (req, res, next) {
+    if (req.headers.authorization == null) {
+      res.statusCode = 403
+      res.end('forbidden')
+      return
+    }
+
+    next()
+  })
+
+  await instance.register(async function (l1) {
+    await l1.register(async function (l2) {
+      await l2.register(async function (l3) {
+        l3.get('/resource', async function () {
+          return { data: 'deep-resource' }
+        })
+      }, { prefix: '/c' })
+    }, { prefix: '/b' })
+  }, { prefix: '/api/a' })
+
+  const address = await instance.listen({ port: 0 })
+
+  const noAuth = await fetch(address + '/api/a/b/c/resource')
+  t.assert.deepStrictEqual(noAuth.status, 403)
+
+  const withAuth = await fetch(address + '/api/a/b/c/resource', {
+    headers: { authorization: 'Bearer test' }
+  })
+  t.assert.deepStrictEqual(withAuth.status, 200)
+  t.assert.deepStrictEqual(await withAuth.json(), { data: 'deep-resource' })
+})
+
+test('should not apply middleware to unrelated nested prefixes', async t => {
+  t.plan(4)
+
+  const instance = fastify()
+  t.after(() => instance.close())
+
+  await instance.register(middiePlugin)
+
+  instance.use('/admin', function (req, res, next) {
+    if (req.headers.authorization == null) {
+      res.statusCode = 403
+      res.end('forbidden')
+      return
+    }
+
+    next()
+  })
+
+  await instance.register(async function (child) {
+    child.get('/data', async function () {
+      return { data: 'public' }
+    })
+
+    await child.register(async function (grandchild) {
+      grandchild.get('/info', async function () {
+        return { data: 'public-nested' }
+      })
+    }, { prefix: '/nested' })
+  }, { prefix: '/public' })
+
+  const address = await instance.listen({ port: 0 })
+
+  const publicData = await fetch(address + '/public/data')
+  t.assert.deepStrictEqual(publicData.status, 200)
+  t.assert.deepStrictEqual(await publicData.json(), { data: 'public' })
+
+  const publicNested = await fetch(address + '/public/nested/info')
+  t.assert.deepStrictEqual(publicNested.status, 200)
+  t.assert.deepStrictEqual(await publicNested.json(), { data: 'public-nested' })
+})
+
+test('should not apply middleware when prefix shares string prefix but not path segment', async t => {
+  t.plan(4)
+
+  const instance = fastify()
+  t.after(() => instance.close())
+
+  await instance.register(middiePlugin)
+
+  instance.use('/admin', function (req, res, next) {
+    if (req.headers.authorization == null) {
+      res.statusCode = 403
+      res.end('forbidden')
+      return
+    }
+
+    next()
+  })
+
+  await instance.register(async function (child) {
+    child.get('/settings', async function () {
+      return { data: 'panel-settings' }
+    })
+  }, { prefix: '/admin-panel' })
+
+  await instance.register(async function (child) {
+    child.get('/settings', async function () {
+      return { data: 'admin-settings' }
+    })
+  }, { prefix: '/admin/real' })
+
+  const address = await instance.listen({ port: 0 })
+
+  const panelNoAuth = await fetch(address + '/admin-panel/settings')
+  t.assert.deepStrictEqual(panelNoAuth.status, 200)
+  t.assert.deepStrictEqual(await panelNoAuth.json(), { data: 'panel-settings' })
+
+  const realNoAuth = await fetch(address + '/admin/real/settings')
+  t.assert.deepStrictEqual(realNoAuth.status, 403)
+
+  const realWithAuth = await fetch(address + '/admin/real/settings', {
+    headers: { authorization: 'Bearer test' }
+  })
+  t.assert.deepStrictEqual(realWithAuth.status, 200)
+})
+
+test('should enforce middleware with partial prefix overlap in nested scopes', async t => {
+  t.plan(3)
+
+  const instance = fastify()
+  t.after(() => instance.close())
+
+  await instance.register(middiePlugin)
+
+  instance.use('/admin', function (req, res, next) {
+    if (req.headers.authorization == null) {
+      res.statusCode = 403
+      res.end('forbidden')
+      return
+    }
+
+    next()
+  })
+
+  await instance.register(async function (child) {
+    await child.register(async function (grandchild) {
+      grandchild.get('/settings', async function () {
+        return { data: 'admin-settings' }
+      })
+    }, { prefix: '/panel' })
+  }, { prefix: '/admin' })
+
+  const address = await instance.listen({ port: 0 })
+
+  const noAuth = await fetch(address + '/admin/panel/settings')
+  t.assert.deepStrictEqual(noAuth.status, 403)
+
+  const withAuth = await fetch(address + '/admin/panel/settings', {
+    headers: { authorization: 'Bearer test' }
+  })
+  t.assert.deepStrictEqual(withAuth.status, 200)
+  t.assert.deepStrictEqual(await withAuth.json(), { data: 'admin-settings' })
+})

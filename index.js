@@ -102,8 +102,14 @@ function fastifyMiddie (fastify, options, next) {
     instance[kMiddie] = Middie(onMiddieEnd, resolveNormalizationOptions(instance))
     instance[kMiddieHasMiddlewares] = false
     instance.decorate('use', use)
-    for (const middleware of middlewares) {
-      instance.use(...middleware)
+    for (const [path, fn] of middlewares) {
+      instance[kMiddlewares].push([path, fn])
+      if (fn == null) {
+        instance[kMiddie].use(path)
+      } else {
+        instance[kMiddie].use(path, fn)
+      }
+      instance[kMiddieHasMiddlewares] = true
     }
   }
 
