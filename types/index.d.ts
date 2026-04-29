@@ -17,11 +17,6 @@ declare namespace fastifyMiddie {
     hook?: 'onRequest' | 'preParsing' | 'preValidation' | 'preHandler' | 'preSerialization' | 'onSend' | 'onResponse' | 'onTimeout' | 'onError';
   }
 
-  /**
-   * @deprecated Use FastifyMiddieOptions instead
-   */
-  export type MiddiePluginOptions = FastifyMiddieOptions
-
   export interface IncomingMessageExtended {
     body?: any;
     query?: any;

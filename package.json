@@ -10,7 +10,7 @@
     "lint:fix": "eslint --fix",
     "test": "npm run test:unit && npm run test:typescript",
     "test:unit": "c8 --100 node --test",
-    "test:typescript": "tsd"
+    "test:typescript": "tstyche"
   },
   "keywords": [
     "fastify",
@@ -67,7 +67,7 @@
     "helmet": "^8.0.0",
     "neostandard": "^0.13.0",
     "serve-static": "^2.2.0",
-    "tsd": "^0.33.0"
+    "tstyche": "^7.0.0"
   },
   "dependencies": {
     "@fastify/error": "^4.0.0",
