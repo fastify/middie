@@ -6,7 +6,7 @@
 
 *@fastify/middie* is the plugin that adds middleware support on steroids to [Fastify](https://www.npmjs.com/package/fastify).
 
-The syntax style is the same as [express](http://npm.im/express)/[connect](https://www.npmjs.com/package/connect).
+The syntax style is the same as [express](https://www.npmjs.com/package/express)/[connect](https://www.npmjs.com/package/connect).
 Does not support the full syntax `middleware(err, req, res, next)`, because error handling is done inside Fastify.
 
 ## Install
@@ -162,7 +162,7 @@ async function subsystem (fastify, opts) {
 
 #### :warning: potential ReDoS attacks
 
-Middie uses [`path-to-regexp`](http://npm.im/path-to-regexp) to convert paths to regular expressions.
+Middie uses [`path-to-regexp`](https://www.npmjs.com/package/path-to-regexp) to convert paths to regular expressions.
 This might cause potential [ReDoS](https://en.wikipedia.org/wiki/ReDoS) attacks in your applications if
 certain patterns are used. Use it with care.
 
