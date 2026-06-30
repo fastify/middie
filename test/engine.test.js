@@ -517,3 +517,114 @@ test('if the function calls res.end the iterator should stop / 2', t => {
 
   instance.run(req, res)
 })
+
+test('should reject malformed percent-encoded paths with 400 error', t => {
+  t.plan(3)
+
+  const instance = middie(function (err, req) {
+    t.assert.ok(err, 'should receive an error')
+    t.assert.strictEqual(err.statusCode, 400)
+    t.assert.strictEqual(req.url, '/%zz')
+  })
+
+  // Need a middleware to exercise the code path (empty middleware list skips normalization)
+  instance.use(function (_req, _res, next) {
+    next()
+  })
+
+  const req = {
+    url: '/%zz'
+  }
+  const res = {}
+
+  instance.run(req, res)
+})
+
+test('should reject malformed percent-encoded path /% with 400 error', t => {
+  t.plan(2)
+
+  const instance = middie(function (err) {
+    t.assert.ok(err, 'should receive an error')
+    t.assert.strictEqual(err.statusCode, 400)
+  })
+
+  instance.use(function (_req, _res, next) {
+    next()
+  })
+
+  const req = {
+    url: '/%'
+  }
+  const res = {}
+
+  instance.run(req, res)
+})
+
+test('should reject truncated percent-encoded sequences with 400 error', t => {
+  t.plan(2)
+
+  const instance = middie(function (err) {
+    t.assert.ok(err, 'should receive an error')
+    t.assert.strictEqual(err.statusCode, 400)
+  })
+
+  instance.use(function (_req, _res, next) {
+    next()
+  })
+
+  const req = {
+    url: '/%2'
+  }
+  const res = {}
+
+  instance.run(req, res)
+})
+
+test('should handle valid percent-encoded paths normally', t => {
+  t.plan(3)
+
+  let middlewareCalled = false
+  const instance = middie(function (err, req) {
+    t.assert.ifError(err)
+    t.assert.strictEqual(req.url, '/%61dmin')
+    t.assert.ok(middlewareCalled, 'middleware should have been called')
+  })
+
+  // Global middleware (no prefix) should run for all paths
+  instance.use(function (_req, _res, next) {
+    middlewareCalled = true
+    next()
+  })
+
+  const req = {
+    url: '/%61dmin'
+  }
+  const res = {}
+
+  instance.run(req, res)
+})
+
+test('should not error on valid percent-encoded paths in middleware prefix', t => {
+  t.plan(4)
+
+  let prefixMiddlewareCalled = false
+  const instance = middie(function (err, req) {
+    t.assert.ifError(err)
+    t.assert.strictEqual(req.url, '/%61dmin')
+    t.assert.ok(prefixMiddlewareCalled, 'prefix middleware should have been called')
+  })
+
+  // Middleware with encoded prefix matches decoded path
+  instance.use('/admin', function (req, _res, next) {
+    prefixMiddlewareCalled = true
+    t.assert.strictEqual(req.url, '/')
+    next()
+  })
+
+  const req = {
+    url: '/%61dmin'
+  }
+  const res = {}
+
+  instance.run(req, res)
+})
