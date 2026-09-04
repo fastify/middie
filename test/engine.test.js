@@ -628,3 +628,67 @@ test('should not error on valid percent-encoded paths in middleware prefix', t =
 
   instance.run(req, res)
 })
+
+test('should resolve an absolute-form target without a path to root', t => {
+  t.plan(3)
+
+  const instance = middie(function (err, req) {
+    t.assert.ifError(err)
+    t.assert.strictEqual(req.url, 'http://example.test')
+  })
+
+  instance.use('/', function (req, _res, next) {
+    t.assert.strictEqual(req.url, '/')
+    next()
+  })
+
+  instance.run({ url: 'http://example.test' }, {})
+})
+
+test('should reject absolute-form targets with an empty authority', t => {
+  t.plan(2)
+
+  const instance = middie(function (err) {
+    t.assert.ok(err)
+    t.assert.strictEqual(err.statusCode, 400)
+  })
+
+  instance.use(function (_req, _res, next) {
+    next()
+  })
+
+  instance.run({ url: 'http:///admin' }, {})
+})
+
+test('should reject malformed absolute-form targets', t => {
+  t.plan(2)
+
+  const instance = middie(function (err) {
+    t.assert.ok(err)
+    t.assert.strictEqual(err.statusCode, 400)
+  })
+
+  instance.use(function (_req, _res, next) {
+    next()
+  })
+
+  instance.run({ url: 'http://[invalid]/admin' }, {})
+})
+
+test('should leave unsupported and relative request targets unmatched', t => {
+  t.plan(4)
+
+  for (const url of ['ftp://example.test/admin', 'relative']) {
+    const instance = middie(function (err, req) {
+      t.assert.ifError(err)
+      t.assert.strictEqual(req.url, url)
+    })
+
+    instance.use('/admin', function (_req, _res, next) {
+      t.assert.fail('middleware should not match')
+      next()
+    })
+
+    instance.run({ url }, {})
+  }
+})
