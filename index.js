@@ -31,7 +31,8 @@ function resolveNormalizationOptions (instance) {
   return {
     ignoreDuplicateSlashes: routerOptions.ignoreDuplicateSlashes ?? initialConfig.ignoreDuplicateSlashes,
     useSemicolonDelimiter: routerOptions.useSemicolonDelimiter ?? initialConfig.useSemicolonDelimiter,
-    ignoreTrailingSlash: routerOptions.ignoreTrailingSlash ?? initialConfig.ignoreTrailingSlash
+    ignoreTrailingSlash: routerOptions.ignoreTrailingSlash ?? initialConfig.ignoreTrailingSlash,
+    caseSensitive: routerOptions.caseSensitive ?? initialConfig.caseSensitive
   }
 }
 
