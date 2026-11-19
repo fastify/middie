@@ -5,6 +5,7 @@ const Middie = require('./lib/engine')
 const kMiddlewares = Symbol('fastify-middie-middlewares')
 const kMiddie = Symbol('fastify-middie-instance')
 const kMiddieHasMiddlewares = Symbol('fastify-middie-has-middlewares')
+const kChildren = Symbol('fastify-middie-children')
 const { FST_ERR_MIDDIE_INVALID_HOOK } = require('./lib/errors')
 
 const supportedHooksWithPayload = [
@@ -39,6 +40,7 @@ function resolveNormalizationOptions (instance) {
 function fastifyMiddie (fastify, options, next) {
   fastify.decorate('use', use)
   fastify[kMiddlewares] = []
+  fastify[kChildren] = []
   fastify[kMiddieHasMiddlewares] = false
 
   fastify[kMiddie] = Middie(onMiddieEnd, resolveNormalizationOptions(fastify))
@@ -69,14 +71,23 @@ function fastifyMiddie (fastify, options, next) {
         return joinPrefix(prefix, p)
       })
     }
-    this[kMiddlewares].push([path, fn])
-    if (fn == null) {
-      this[kMiddie].use(path)
-    } else {
-      this[kMiddie].use(path, fn)
-    }
-    this[kMiddieHasMiddlewares] = true
+    addMiddleware(this, path, fn)
     return this
+  }
+
+  // Like a Fastify hook, a middleware also runs for the plugins that were
+  // already registered in the instance, so it is added to them as well.
+  function addMiddleware (instance, path, fn) {
+    instance[kMiddlewares].push([path, fn])
+    if (fn == null) {
+      instance[kMiddie].use(path)
+    } else {
+      instance[kMiddie].use(path, fn)
+    }
+    instance[kMiddieHasMiddlewares] = true
+    for (const child of instance[kChildren]) {
+      addMiddleware(child, path, fn)
+    }
   }
 
   function runMiddie (req, reply, next) {
@@ -108,17 +119,15 @@ function fastifyMiddie (fastify, options, next) {
   function onRegister (instance) {
     const middlewares = instance[kMiddlewares].slice()
     instance[kMiddlewares] = []
+    // Until it is replaced, the list is the one of the instance the plugin is
+    // registered in, as is the list of middlewares.
+    instance[kChildren].push(instance)
+    instance[kChildren] = []
     instance[kMiddie] = Middie(onMiddieEnd, resolveNormalizationOptions(instance))
     instance[kMiddieHasMiddlewares] = false
     instance.decorate('use', use)
     for (const [path, fn] of middlewares) {
-      instance[kMiddlewares].push([path, fn])
-      if (fn == null) {
-        instance[kMiddie].use(path)
-      } else {
-        instance[kMiddie].use(path, fn)
-      }
-      instance[kMiddieHasMiddlewares] = true
+      addMiddleware(instance, path, fn)
     }
   }
 
