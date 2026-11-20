@@ -63,7 +63,7 @@ function fastifyMiddie (fastify, options, next) {
     if (typeof path === 'string') {
       path = joinPrefix(prefix, path)
     } else if (Array.isArray(path)) {
-      path = path.map(p => {
+      path = path.flatMap(p => {
         // Non-string entries (RegExp) are not prefix-scoped here; they pass
         // through to the engine. RegExp mount handling is a separate concern.
         /* c8 ignore next */
@@ -147,8 +147,10 @@ function joinPrefix (prefix, path) {
     path = path.slice(1)
   } else if (path[0] !== '/' && !prefix.endsWith('/')) {
     // A mount path with no leading slash would otherwise glue onto the prefix
-    // (`/api` + `secret` => `/apisecret`) or never match a slash-led route.
-    path = '/' + path
+    // (`/api` + `secret` => `/apisecret`) and never match a slash-led route.
+    // Fastify serves a route with no leading slash at exactly that glued
+    // path, though, so mount both spellings.
+    return prefix.length > 0 ? [prefix + '/' + path, prefix + path] : '/' + path
   }
   return prefix + path
 }
