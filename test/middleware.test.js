@@ -363,7 +363,7 @@ test('middlewares should be able to respond with a stream', (t, done) => {
 })
 
 test('Use a middleware inside a plugin after an encapsulated plugin', (t, done) => {
-  t.plan(4)
+  t.plan(5)
   const f = fastify()
   f.register(middiePlugin)
 
@@ -382,7 +382,7 @@ test('Use a middleware inside a plugin after an encapsulated plugin', (t, done) 
 
   f.register(fp(function (instance, _opts, next) {
     instance.use(function (_req, _res, next) {
-      t.ok('second middleware called')
+      t.assert.ok('second middleware called')
       next()
     })
 

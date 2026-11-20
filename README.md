@@ -41,6 +41,8 @@ build()
 
 The encapsulation works as usual with Fastify, you can register the plugin in a subsystem and your code will work only inside there, or you can declare the middie plugin top level and register a middleware in a nested plugin, and the middleware will be executed only for the nested routes of the specific plugin.
 
+As with Fastify hooks, a middleware also runs for the routes of the plugins already registered in the instance where `use()` is called, for example after `await fastify.register(plugin)`.
+
 *Register the plugin in its own subsystem:*
 ```js
 const fastify = require('fastify')()
