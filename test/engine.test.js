@@ -675,13 +675,38 @@ test('should reject malformed absolute-form targets', t => {
   instance.run({ url: 'http://[invalid]/admin' }, {})
 })
 
-test('should leave unsupported and relative request targets unmatched', t => {
-  t.plan(4)
+test('should reject unsupported and relative request targets', t => {
+  t.plan(12)
 
-  for (const url of ['ftp://example.test/admin', 'relative']) {
+  // find-my-way skips the first character of a path that does not start
+  // with `/`, so the router would read `*admin` as `/admin`.
+  for (const url of ['ftp://example.test/admin', 'relative', '*admin', '*admin/42', '*admin?x=1', ':admin']) {
+    const instance = middie(function (err) {
+      t.assert.ok(err)
+      t.assert.strictEqual(err.statusCode, 400)
+    })
+
+    instance.use(function (_req, _res, next) {
+      t.assert.fail('middleware should not run')
+      next()
+    })
+
+    instance.run({ url }, {})
+  }
+})
+
+test('should match the asterisk-form request target as the root path', t => {
+  t.plan(6)
+
+  for (const [url, mountedUrl] of [['*', '/'], ['*?x=1', '/?x=1']]) {
     const instance = middie(function (err, req) {
       t.assert.ifError(err)
       t.assert.strictEqual(req.url, url)
+    })
+
+    instance.use('/', function (req, _res, next) {
+      t.assert.strictEqual(req.url, mountedUrl)
+      next()
     })
 
     instance.use('/admin', function (_req, _res, next) {
