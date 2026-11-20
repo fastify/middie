@@ -81,3 +81,25 @@ test('security: combined deprecated top-level options cannot bypass middie use(/
   t.assert.strictEqual(control.statusCode, 200, 'fastify route matches crafted variant with deprecated top-level options')
   t.assert.strictEqual(secured.statusCode, 401, 'middie guard must also match crafted variant and block')
 })
+
+for (const [name, options, url] of [
+  ['ignoreDuplicateSlashes', { ignoreDuplicateSlashes: true, routerOptions: { maxParamLength: 200 } }, '//secret'],
+  ['useSemicolonDelimiter', { useSemicolonDelimiter: true, routerOptions: {} }, '/secret;foo=bar'],
+  ['ignoreTrailingSlash', { ignoreTrailingSlash: true, routerOptions: { compile: true } }, '/secret/']
+]) {
+  // Fastify fills `false` defaults into initialConfig.routerOptions for any
+  // routerOptions object, while the router still uses the top-level option.
+  test(`security: deprecated top-level ${name} with a routerOptions object cannot bypass middie use(/secret)`, async (t) => {
+    const guarded = await buildGuardedApp(options)
+    const plain = await buildPlainApp(options)
+
+    t.after(() => guarded.close())
+    t.after(() => plain.close())
+
+    const control = await plain.inject({ method: 'GET', url })
+    const secured = await guarded.inject({ method: 'GET', url })
+
+    t.assert.strictEqual(control.statusCode, 200)
+    t.assert.strictEqual(secured.statusCode, 401)
+  })
+}

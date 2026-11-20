@@ -29,10 +29,14 @@ function resolveNormalizationOptions (instance) {
   const initialConfig = instance.initialConfig || {}
   const routerOptions = initialConfig.routerOptions || {}
 
+  // Fastify fills `false` defaults into initialConfig.routerOptions whenever a
+  // routerOptions object is passed, while its router falls back to the
+  // deprecated top-level option for every key that object does not set, so
+  // follow either one that turns an option on.
   return {
-    ignoreDuplicateSlashes: routerOptions.ignoreDuplicateSlashes ?? initialConfig.ignoreDuplicateSlashes,
-    useSemicolonDelimiter: routerOptions.useSemicolonDelimiter ?? initialConfig.useSemicolonDelimiter,
-    ignoreTrailingSlash: routerOptions.ignoreTrailingSlash ?? initialConfig.ignoreTrailingSlash,
+    ignoreDuplicateSlashes: routerOptions.ignoreDuplicateSlashes === true || initialConfig.ignoreDuplicateSlashes === true,
+    useSemicolonDelimiter: routerOptions.useSemicolonDelimiter === true || initialConfig.useSemicolonDelimiter === true,
+    ignoreTrailingSlash: routerOptions.ignoreTrailingSlash === true || initialConfig.ignoreTrailingSlash === true,
     caseSensitive: routerOptions.caseSensitive ?? initialConfig.caseSensitive
   }
 }
