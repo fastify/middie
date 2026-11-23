@@ -58,7 +58,14 @@ function fastifyMiddie (fastify, options, next) {
       : runMiddie)
     .addHook('onRegister', onRegister)
 
-  function use (path, fn) {
+  function use (path, ...handlers) {
+    // Like Express, accept several middleware, and arrays of them, with or
+    // without a path. The engine takes them as one flat array.
+    if (typeof path === 'function') {
+      handlers.unshift(path)
+      path = undefined
+    }
+    const fn = handlers.length > 1 ? handlers.flat(Infinity) : handlers[0]
     const prefix = this.prefix
     if (typeof path === 'string') {
       path = joinPrefix(prefix, path)
@@ -79,11 +86,7 @@ function fastifyMiddie (fastify, options, next) {
   // already registered in the instance, so it is added to them as well.
   function addMiddleware (instance, path, fn) {
     instance[kMiddlewares].push([path, fn])
-    if (fn == null) {
-      instance[kMiddie].use(path)
-    } else {
-      instance[kMiddie].use(path, fn)
-    }
+    instance[kMiddie].use(path, fn)
     instance[kMiddieHasMiddlewares] = true
     for (const child of instance[kChildren]) {
       addMiddleware(child, path, fn)
