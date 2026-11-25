@@ -103,3 +103,65 @@ for (const [name, options, url] of [
     t.assert.strictEqual(secured.statusCode, 401)
   })
 }
+
+// initialConfig.routerOptions holds `false` both for a routerOptions value set
+// to false, which the router uses, and for one left unset, where the router
+// uses the deprecated top-level option, so middie matches the path both ways.
+for (const [name, options, path, url, rest] of [
+  [
+    'useSemicolonDelimiter',
+    { useSemicolonDelimiter: true, routerOptions: { useSemicolonDelimiter: false } },
+    '/:tenant/admin', '/t;x/admin/users', '/users'
+  ],
+  [
+    'ignoreDuplicateSlashes',
+    { ignoreDuplicateSlashes: true, routerOptions: { ignoreDuplicateSlashes: false } },
+    '/:tenant/admin', '//admin/users', '/users'
+  ],
+  [
+    'ignoreTrailingSlash',
+    { ignoreTrailingSlash: true, routerOptions: { ignoreTrailingSlash: false } },
+    '/:tenant/:section', '/t/', '/'
+  ],
+  [
+    'useSemicolonDelimiter with case-insensitive routing',
+    { useSemicolonDelimiter: true, routerOptions: { useSemicolonDelimiter: false, caseSensitive: false } },
+    '/:tenant/admin', '/T;x/ADMIN/Users', '/Users'
+  ]
+]) {
+  test(`security: a routerOptions ${name} turned off next to the deprecated top-level option cannot bypass middie`, async (t) => {
+    const route = path.endsWith('/admin') ? `${path}/*` : path
+
+    const guarded = Fastify(options)
+    t.after(() => guarded.close())
+    await guarded.register(middiePlugin)
+    const urls = []
+    guarded.use(path, (req, res, next) => {
+      urls.push(req.url)
+      guardMiddie(req, res, next)
+    })
+    guarded.get(route, async () => ({ ok: true }))
+
+    const plain = Fastify(options)
+    t.after(() => plain.close())
+    plain.get(route, async () => ({ ok: true }))
+
+    t.assert.strictEqual((await plain.inject(url)).statusCode, 200)
+    t.assert.strictEqual((await guarded.inject(url)).statusCode, 401)
+    const allowed = await guarded.inject({ url, headers: { 'x-api-key': API_KEY } })
+    t.assert.strictEqual(allowed.statusCode, 200)
+    t.assert.deepStrictEqual(urls, [rest, rest])
+  })
+}
+
+test('security: a path that cannot be decoded without the semicolon delimiter still runs middie', async (t) => {
+  const options = { useSemicolonDelimiter: true, routerOptions: {} }
+  const guarded = await buildGuardedApp(options)
+  const plain = await buildPlainApp(options)
+
+  t.after(() => guarded.close())
+  t.after(() => plain.close())
+
+  t.assert.strictEqual((await plain.inject('/secret;%zz')).statusCode, 200)
+  t.assert.strictEqual((await guarded.inject('/secret;%zz')).statusCode, 401)
+})
