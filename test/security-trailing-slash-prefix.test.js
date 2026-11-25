@@ -200,3 +200,29 @@ test('bare mount paths (no leading slash) are normalized to a slash-led join', a
     })
   }
 })
+
+test('bare mount paths also match the routes Fastify glues onto the prefix', async t => {
+  const app = Fastify()
+  t.after(() => app.close())
+  let authCalls = 0
+  function auth (req, res, next) {
+    authCalls++
+    res.statusCode = 401
+    res.end('unauthorized')
+  }
+
+  app.register(async function (scope) {
+    await scope.register(middiePlugin)
+    // Fastify serves these routes at /apisecret and /api:id.
+    scope.use('secret', auth)
+    scope.get('secret', async () => 'secret')
+    scope.use([':id'], auth)
+    scope.get(':id', async () => 'secret')
+  }, { prefix: '/api' })
+
+  for (const url of ['/apisecret', '/api42']) {
+    const response = await app.inject(url)
+    t.assert.strictEqual(response.statusCode, 401, url)
+  }
+  t.assert.strictEqual(authCalls, 2)
+})
