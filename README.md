@@ -193,6 +193,50 @@ async function subsystem (fastify, opts) {
 >   single one, named `lat,:lng`, in a Fastify route, so a middleware mounted
 >   there does not run for `/map/anything`, which the route matches.
 
+### Several middleware in one call
+
+`use()` takes any number of middleware after the optional path, as separate
+arguments or in arrays, and runs them in order, as Express does. It throws if
+one of them is not a function.
+
+```js
+const fastify = require('fastify')()
+
+function audit (req, res, next) {
+  console.log('admin request', req.method, req.url)
+  next()
+}
+
+function authenticate (req, res, next) {
+  if (req.headers.authorization !== 'Bearer secret') {
+    res.statusCode = 401
+    res.end('Unauthorized')
+    return
+  }
+  next()
+}
+
+async function subsystem (fastify, opts) {
+  // audit runs first, then authenticate
+  fastify.use('/admin', audit, authenticate)
+
+  fastify.get('/admin/users', async () => ['alice', 'bob'])
+}
+
+fastify
+  .register(require('@fastify/middie'))
+  .register(subsystem)
+```
+
+The middleware can also be grouped in arrays, and the path left out to run
+them for every request:
+
+```js
+fastify.use('/admin', [audit, authenticate])
+fastify.use(['/admin', '/internal'], audit, [authenticate])
+fastify.use(audit, authenticate)
+```
+
 ### Usage with middlewares that act as routes
 A middleware that is designed to act as a route handler rather than wrap existing routes will require a catch all route in Fastify so that the middleware gets called.
 
