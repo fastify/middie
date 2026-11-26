@@ -155,9 +155,6 @@ async function subsystem (fastify, opts) {
   // Single path
   fastify.use('/css', serveStatic(path.join(__dirname, '/assets')))
 
-  // Wildcard path
-  fastify.use('/css/*', serveStatic(path.join(__dirname, '/assets')))
-
   // Multiple paths
   fastify.use(['/css', '/js'], serveStatic(path.join(__dirname, '/assets')))
 
@@ -173,6 +170,28 @@ async function subsystem (fastify, opts) {
   })
 }
 ```
+
+> **Note:** A mount path also covers the paths below it, so `'/css'` runs for
+> `/css/a.css`, and the middleware sees the rest of the path, `/a.css`, in
+> `req.url`. Mount paths use the [`path-to-regexp`](https://www.npmjs.com/package/path-to-regexp)
+> syntax, as Express does, which differs from the Fastify route syntax:
+>
+> - A wildcard needs a name, as in `'/css/*path'`, and takes the rest of the
+>   path, so the middleware sees `/` in `req.url`.
+> - Braces mark an optional part: `'/api{/v2}/admin'` matches `/api/admin` and
+>   `/api/v2/admin`. The mount path `'/api/{v2}/admin'` does not match
+>   `/api/%7Bv2%7D/admin`, which the Fastify route `'/api/{v2}/admin'` matches.
+> - A backslash escapes the next character: the mount path written as
+>   `'/files\\private'` in JavaScript matches `/filesprivate`, not
+>   `/files%5Cprivate`. Escape a literal `\`, `{` or `}` with a backslash, as in
+>   `'/files\\\\private'`.
+> - `(`, `)`, `[`, `]`, `?`, `+` and `!` are reserved: `use()` throws unless
+>   they are escaped.
+> - A parameter name ends at the first character that cannot be part of an
+>   identifier, while in a Fastify route it ends only at `/`, `-`, `.` or `(`.
+>   For example, `/map/:lat,:lng` has two parameters in a mount path but a
+>   single one, named `lat,:lng`, in a Fastify route, so a middleware mounted
+>   there does not run for `/map/anything`, which the route matches.
 
 ### Usage with middlewares that act as routes
 A middleware that is designed to act as a route handler rather than wrap existing routes will require a catch all route in Fastify so that the middleware gets called.

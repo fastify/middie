@@ -30,11 +30,26 @@ function resolveNormalizationOptions (instance) {
   const routerOptions = initialConfig.routerOptions || {}
 
   return {
-    ignoreDuplicateSlashes: routerOptions.ignoreDuplicateSlashes ?? initialConfig.ignoreDuplicateSlashes,
-    useSemicolonDelimiter: routerOptions.useSemicolonDelimiter ?? initialConfig.useSemicolonDelimiter,
-    ignoreTrailingSlash: routerOptions.ignoreTrailingSlash ?? initialConfig.ignoreTrailingSlash,
+    ignoreDuplicateSlashes: routerOption(initialConfig, routerOptions, 'ignoreDuplicateSlashes'),
+    useSemicolonDelimiter: routerOption(initialConfig, routerOptions, 'useSemicolonDelimiter'),
+    ignoreTrailingSlash: routerOption(initialConfig, routerOptions, 'ignoreTrailingSlash'),
     caseSensitive: routerOptions.caseSensitive ?? initialConfig.caseSensitive
   }
+}
+
+// Whether the router uses a boolean option, or null when initialConfig cannot
+// tell, for the engine to match the path both ways. Fastify fills `false`
+// defaults into initialConfig.routerOptions whenever a routerOptions object is
+// passed, while its router uses the deprecated top-level option for every key
+// that object does not set, so a `false` there next to a top-level `true` may
+// mean either.
+function routerOption (initialConfig, routerOptions, key) {
+  const value = routerOptions[key]
+  const deprecated = initialConfig[key] === true
+  if (value === false && deprecated) {
+    return null
+  }
+  return value === true || deprecated
 }
 
 function fastifyMiddie (fastify, options, next) {
@@ -70,7 +85,7 @@ function fastifyMiddie (fastify, options, next) {
     if (typeof path === 'string') {
       path = joinPrefix(prefix, path)
     } else if (Array.isArray(path)) {
-      path = path.map(p => {
+      path = path.flatMap(p => {
         // Non-string entries (RegExp) are not prefix-scoped here; they pass
         // through to the engine. RegExp mount handling is a separate concern.
         /* c8 ignore next */
@@ -150,8 +165,10 @@ function joinPrefix (prefix, path) {
     path = path.slice(1)
   } else if (path[0] !== '/' && !prefix.endsWith('/')) {
     // A mount path with no leading slash would otherwise glue onto the prefix
-    // (`/api` + `secret` => `/apisecret`) or never match a slash-led route.
-    path = '/' + path
+    // (`/api` + `secret` => `/apisecret`) and never match a slash-led route.
+    // Fastify serves a route with no leading slash at exactly that glued
+    // path, though, so mount both spellings.
+    return prefix.length > 0 ? [prefix + '/' + path, prefix + path] : '/' + path
   }
   return prefix + path
 }
