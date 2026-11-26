@@ -30,11 +30,26 @@ function resolveNormalizationOptions (instance) {
   const routerOptions = initialConfig.routerOptions || {}
 
   return {
-    ignoreDuplicateSlashes: routerOptions.ignoreDuplicateSlashes ?? initialConfig.ignoreDuplicateSlashes,
-    useSemicolonDelimiter: routerOptions.useSemicolonDelimiter ?? initialConfig.useSemicolonDelimiter,
-    ignoreTrailingSlash: routerOptions.ignoreTrailingSlash ?? initialConfig.ignoreTrailingSlash,
+    ignoreDuplicateSlashes: routerOption(initialConfig, routerOptions, 'ignoreDuplicateSlashes'),
+    useSemicolonDelimiter: routerOption(initialConfig, routerOptions, 'useSemicolonDelimiter'),
+    ignoreTrailingSlash: routerOption(initialConfig, routerOptions, 'ignoreTrailingSlash'),
     caseSensitive: routerOptions.caseSensitive ?? initialConfig.caseSensitive
   }
+}
+
+// Whether the router uses a boolean option, or null when initialConfig cannot
+// tell, for the engine to match the path both ways. Fastify fills `false`
+// defaults into initialConfig.routerOptions whenever a routerOptions object is
+// passed, while its router uses the deprecated top-level option for every key
+// that object does not set, so a `false` there next to a top-level `true` may
+// mean either.
+function routerOption (initialConfig, routerOptions, key) {
+  const value = routerOptions[key]
+  const deprecated = initialConfig[key] === true
+  if (value === false && deprecated) {
+    return null
+  }
+  return value === true || deprecated
 }
 
 function fastifyMiddie (fastify, options, next) {
