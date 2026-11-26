@@ -4,9 +4,9 @@ import * as http from 'node:http'
 
 declare module 'fastify' {
   interface FastifyInstance {
-    use(fn: fastifyMiddie.Handler, ...fns: fastifyMiddie.Handler[]): this;
-    use(route: string, fn: fastifyMiddie.Handler, ...fns: fastifyMiddie.Handler[]): this;
-    use(routes: string[], fn: fastifyMiddie.Handler, ...fns: fastifyMiddie.Handler[]): this;
+    use(fn: fastifyMiddie.Handler | fastifyMiddie.Handler[], ...fns: Array<fastifyMiddie.Handler | fastifyMiddie.Handler[]>): this;
+    use(route: string, fn: fastifyMiddie.Handler | fastifyMiddie.Handler[], ...fns: Array<fastifyMiddie.Handler | fastifyMiddie.Handler[]>): this;
+    use(routes: string[], fn: fastifyMiddie.Handler | fastifyMiddie.Handler[], ...fns: Array<fastifyMiddie.Handler | fastifyMiddie.Handler[]>): this;
   }
 }
 

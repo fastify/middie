@@ -6,7 +6,7 @@ const kMiddlewares = Symbol('fastify-middie-middlewares')
 const kMiddie = Symbol('fastify-middie-instance')
 const kMiddieHasMiddlewares = Symbol('fastify-middie-has-middlewares')
 const kChildren = Symbol('fastify-middie-children')
-const { FST_ERR_MIDDIE_INVALID_HOOK } = require('./lib/errors')
+const { FST_ERR_MIDDIE_INVALID_HOOK, FST_ERR_MIDDIE_INVALID_MIDDLEWARE } = require('./lib/errors')
 
 const supportedHooksWithPayload = [
   'onError',
@@ -76,11 +76,19 @@ function fastifyMiddie (fastify, options, next) {
   function use (path, ...handlers) {
     // Like Express, accept several middleware, and arrays of them, with or
     // without a path. The engine takes them as one flat array.
-    if (typeof path === 'function') {
+    if (isMiddleware(path)) {
       handlers.unshift(path)
       path = undefined
     }
-    const fn = handlers.length > 1 ? handlers.flat(Infinity) : handlers[0]
+    const fns = handlers.flat(Infinity)
+    if (fns.length === 0) {
+      throw new FST_ERR_MIDDIE_INVALID_MIDDLEWARE('none')
+    }
+    for (const fn of fns) {
+      if (typeof fn !== 'function') {
+        throw new FST_ERR_MIDDIE_INVALID_MIDDLEWARE(fn === null ? 'null' : typeof fn)
+      }
+    }
     const prefix = this.prefix
     if (typeof path === 'string') {
       path = joinPrefix(prefix, path)
@@ -93,18 +101,18 @@ function fastifyMiddie (fastify, options, next) {
         return joinPrefix(prefix, p)
       })
     }
-    addMiddleware(this, path, fn)
+    addMiddleware(this, path, fns)
     return this
   }
 
   // Like a Fastify hook, a middleware also runs for the plugins that were
   // already registered in the instance, so it is added to them as well.
-  function addMiddleware (instance, path, fn) {
-    instance[kMiddlewares].push([path, fn])
-    instance[kMiddie].use(path, fn)
+  function addMiddleware (instance, path, fns) {
+    instance[kMiddlewares].push([path, fns])
+    instance[kMiddie].use(path, fns)
     instance[kMiddieHasMiddlewares] = true
     for (const child of instance[kChildren]) {
-      addMiddleware(child, path, fn)
+      addMiddleware(child, path, fns)
     }
   }
 
@@ -144,8 +152,8 @@ function fastifyMiddie (fastify, options, next) {
     instance[kMiddie] = Middie(onMiddieEnd, resolveNormalizationOptions(instance))
     instance[kMiddieHasMiddlewares] = false
     instance.decorate('use', use)
-    for (const [path, fn] of middlewares) {
-      addMiddleware(instance, path, fn)
+    for (const [path, fns] of middlewares) {
+      addMiddleware(instance, path, fns)
     }
   }
 
@@ -157,6 +165,15 @@ module.exports = fp(fastifyMiddie, {
   name: '@fastify/middie'
 })
 module.exports.default = fastifyMiddie
+
+// As in Express, an array is a list of middleware rather than of paths when
+// its first entry is a function, as in `use([cors(), auth])`.
+function isMiddleware (arg) {
+  while (Array.isArray(arg) && arg.length > 0) {
+    arg = arg[0]
+  }
+  return typeof arg === 'function'
+}
 
 function joinPrefix (prefix, path) {
   // Match Fastify's route join without changing intentional duplicate slashes.

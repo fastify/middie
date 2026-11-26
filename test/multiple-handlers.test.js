@@ -85,3 +85,56 @@ test('use() runs every middleware in prefixed and child plugins', async t => {
   t.assert.strictEqual(response.statusCode, 401)
   t.assert.deepStrictEqual(calls, ['parent'])
 })
+
+test('use() flattens nested arrays of middleware, with or without a path', async t => {
+  const fastify = Fastify()
+  t.after(() => fastify.close())
+  const { calls, record } = recorder()
+
+  await fastify.register(middiePlugin)
+  fastify.use([record('all1'), [record('all2')]])
+  fastify.use('/a', [[record('a1'), [record('a2')]]])
+  fastify.get('/a', async () => 'a')
+  fastify.get('/b', async () => 'b')
+
+  let response = await fastify.inject('/a')
+  t.assert.strictEqual(response.statusCode, 200)
+  t.assert.deepStrictEqual(calls, ['all1', 'all2', 'a1', 'a2'])
+
+  calls.length = 0
+  response = await fastify.inject('/b')
+  t.assert.strictEqual(response.statusCode, 200)
+  t.assert.deepStrictEqual(calls, ['all1', 'all2'])
+})
+
+test('use() throws if a middleware is not a function', async t => {
+  const fastify = Fastify()
+  t.after(() => fastify.close())
+  const { calls, record } = recorder()
+  const ok = record('ok')
+
+  await fastify.register(middiePlugin)
+  const cases = [
+    [['/x', ok, undefined], 'undefined'],
+    [['/x', ok, null], 'null'],
+    [['/x', [[ok, 'nope']]], 'string'],
+    [[[ok, {}]], 'object'],
+    [['/x'], 'none'],
+    [['/x', []], 'none'],
+    [[], 'none']
+  ]
+  for (const [args, got] of cases) {
+    t.assert.throws(() => fastify.use(...args), err => {
+      t.assert.ok(err instanceof TypeError)
+      t.assert.strictEqual(err.code, 'FST_ERR_MIDDIE_INVALID_MIDDLEWARE')
+      t.assert.strictEqual(err.message, `use() requires a middleware function, got ${got}`)
+      return true
+    })
+  }
+
+  // Nothing was mounted by the calls that threw.
+  fastify.get('/x', async () => 'x')
+  const response = await fastify.inject('/x')
+  t.assert.strictEqual(response.statusCode, 200)
+  t.assert.deepStrictEqual(calls, [])
+})

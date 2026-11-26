@@ -22,7 +22,12 @@ const audit = (_req: IncomingMessageExtended, _res: unknown, next: (err?: any) =
 expect(app.use).type.toBeCallableWith('/', audit, audit)
 expect(app.use).type.toBeCallableWith(['/a', '/b'], audit, audit)
 expect(app.use).type.toBeCallableWith(audit, audit)
+expect(app.use).type.toBeCallableWith('/', audit, [audit, audit])
+expect(app.use).type.toBeCallableWith(['/a', '/b'], [audit], audit)
+expect(app.use).type.toBeCallableWith([audit, audit])
 expect(app.use).type.not.toBeCallableWith('/')
+expect(app.use).type.not.toBeCallableWith()
+expect(app.use).type.not.toBeCallableWith('/', audit, 'nope')
 
 expect(app.register).type.not.toBeCallableWith(middiePlugin, {
   invalidOption: true
